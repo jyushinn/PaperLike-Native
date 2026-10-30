@@ -63,7 +63,10 @@ func touchMappingServiceTests() -> [TestCase] {
                 release[1] = 0
                 release[83] = 0
                 harness.input.emitReport(release, timestamp: 1.1)
-                RunLoop.main.run(until: Date().addingTimeInterval(0.11))
+                let deadline = Date().addingTimeInterval(1)
+                while snapshots.count < 2 && Date() < deadline {
+                    RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+                }
                 try expect(snapshots.count >= 2, "sampling publishes after the final HID report")
                 try expectEqual(snapshots.last?.contactCount, 0)
             }
@@ -73,19 +76,31 @@ func touchMappingServiceTests() -> [TestCase] {
                 let harness = makeMappingHarness()
                 harness.service.start()
                 var updates = 0
-                let subscription = harness.service.touchDiagnosticsSubject.sink { _ in updates += 1 }
-                defer { subscription.cancel() }
+                var sampleTimes: [ContinuousClock.Instant] = []
+                let subscription = harness.service.touchDiagnosticsSubject.sink { _ in
+                    updates += 1
+                    sampleTimes.append(.now)
+                }
+                defer { subscription.cancel(); harness.service.setDiagnosticsEnabled(false) }
                 harness.service.setDiagnosticsEnabled(true)
                 try expectEqual(updates, 1)
                 for x in 1_000...1_099 { harness.input.emitReport(validTouchReport(x: UInt16(x), y: 2_048)) }
                 try expectEqual(updates, 1)
-                RunLoop.main.run(until: Date().addingTimeInterval(0.11))
+                let deadline = Date().addingTimeInterval(1)
+                while updates < 2 && Date() < deadline {
+                    RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+                }
+                try expect(updates >= 2, "diagnostic timer must eventually publish")
+                try expect(sampleTimes[0].duration(to: sampleTimes[1]) >= .milliseconds(90),
+                           "diagnostics must not publish faster than the 100 ms sampling interval")
+                let sampledUpdates = updates
                 harness.input.emitReport(validTouchReport(x: 1_200, y: 2_048))
-                try expectEqual(updates, 2)
+                try expectEqual(updates, sampledUpdates)
                 try expectEqual(harness.service.touchDiagnostics.centroid, CGPoint(x: 562.5, y: 540))
                 harness.service.setDiagnosticsEnabled(false)
                 harness.input.emitReport(validTouchReport(x: 1_300, y: 2_048))
-                try expectEqual(updates, 2)
+                RunLoop.main.run(until: Date().addingTimeInterval(0.15))
+                try expectEqual(updates, sampledUpdates)
                 try expectEqual(harness.service.touchDiagnostics.centroid, CGPoint(x: 609.375, y: 540))
                 try expect(harness.poster.events.count > 50, "mouse output remains at report rate")
             }
