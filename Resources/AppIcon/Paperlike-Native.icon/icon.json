@@ -1,0 +1,54 @@
+{
+  "color-space-for-untagged-svg-colors" : "display-p3",
+  "fill" : "automatic",
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "blend-mode" : "normal",
+          "fill" : {
+            "linear-gradient" : [
+              "display-p3:0.93857,0.91820,0.75355,1.00000",
+              "display-p3:0.90499,0.67281,0.43915,1.00000"
+            ],
+            "orientation" : {
+              "start" : {
+                "x" : 0.26739485589812334,
+                "y" : 0
+              },
+              "stop" : {
+                "x" : 0.8044780495978552,
+                "y" : 0.9594322421981004
+              }
+            }
+          },
+          "glass" : true,
+          "image-name" : "paperlike-native-mark-outlined.svg",
+          "name" : "paperlike-native-mark",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.3
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}

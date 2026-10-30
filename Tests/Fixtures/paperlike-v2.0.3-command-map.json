@@ -1,0 +1,17 @@
+{
+  "source": "PaperLike Client for Mac V2.0.3 静态分析",
+  "families": {
+    "01": "PaperLike 13.3K 彩色版",
+    "02": "PaperLike 13.3K 黑白版"
+  },
+  "speed": {
+    "command": "04",
+    "values": [1, 2, 3, 4, 5],
+    "requestPrefixes": ["0401", "0402", "0403", "0404", "0405"]
+  },
+  "notes": [
+    "0A13 只用于查询型号族。",
+    "当前客户端不得使用 13xx 写入刷新速度。",
+    "固件不提供当前速度读回，因此连接后等待用户选择。"
+  ]
+}

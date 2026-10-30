@@ -1,0 +1,36 @@
+{
+  "device": {
+    "name": "PaperLike 13.3K Color",
+    "mcu": "30",
+    "family": "01",
+    "captureStatus": "早期原型受控采集，仅保留历史证据"
+  },
+  "startupQueries": [
+    {"request": "5FF50A10000000000000A0FA", "value": "30"},
+    {"request": "5FF50A13000000000000A0FA", "value": "01"},
+    {"request": "5FF50A01000000000000A0FA", "value": "01"},
+    {"request": "5FF50A02000000000000A0FA", "value": "02"},
+    {"request": "5FF50A07000000000000A0FA", "value": "03"},
+    {"request": "5FF50A09000000000000A0FA", "value": "27"},
+    {"request": "5FF50A08000000000000A0FA", "value": "56"}
+  ],
+  "verifiedActions": [
+    {"name": "网页模式", "requestPrefix": "0206"},
+    {"name": "文字模式", "requestPrefix": "0202"},
+    {"name": "图像模式", "requestPrefix": "0203"},
+    {"name": "动态模式", "requestPrefix": "0207"},
+    {"name": "对比度 1/2", "requestPrefixes": ["0101", "0102"]},
+    {"name": "早期原型速度写入（当前客户端不使用）", "requestPrefixes": ["1300", "1301"]},
+    {"name": "前光关闭/混合", "requestPrefixes": ["0700", "0703"]},
+    {"name": "亮度 39/40", "requestPrefixes": ["0927", "0928"]},
+    {"name": "色温 86/87", "requestPrefixes": ["0856", "0857"]},
+    {"name": "快速刷新", "requestPrefix": "0300"},
+    {"name": "视频处理板保活", "requestPrefix": "2001", "intervalSeconds": 2}
+  ],
+  "notes": [
+    "所有 requestPrefix 均位于 5FF5 之后。",
+    "0A13 是型号族查询；早期原型曾采集到直接 13xx 写入，但当前官方 V2.0.3 命令图确认速度应使用 04xx。",
+    "原厂客户端在识别成功后立即发送 2001，并约每 2 秒重复；设备回复 F0200000。",
+    "当前客户端不使用本夹具里的 13xx 历史写入；正式速度语义见 paperlike-v2.0.3-command-map.json。"
+  ]
+}

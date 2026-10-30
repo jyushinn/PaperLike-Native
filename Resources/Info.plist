@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDisplayName</key>
+    <string>PaperLike Native</string>
+    <key>CFBundleExecutable</key>
+    <string>PaperLikeNative</string>
+    <key>CFBundleIconFile</key>
+    <string>Paperlike-Native</string>
+    <key>CFBundleIconName</key>
+    <string>Paperlike-Native</string>
+    <key>CFBundleIdentifier</key>
+    <string>org.paperlike.native</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>PaperLike Native</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>CFBundleVersion</key>
+    <string>17</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>15.4</string>
+    <key>LSUIElement</key>
+    <true/>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright © 2026 PaperLike Native contributors. MIT License.</string>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>仅在用户主动调整电子纸显示优化选项时，通过“系统事件”更改辅助功能显示设置。</string>
+    <key>NSSupportsAutomaticTermination</key>
+    <false/>
+    <key>NSSupportsSuddenTermination</key>
+    <false/>
+</dict>
+</plist>
