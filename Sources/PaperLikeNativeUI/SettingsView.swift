@@ -195,7 +195,7 @@ public struct SettingsView: View {
                         "登录时启动",
                         isOn: Binding(
                             get: { model.loginItemEnabled },
-                            set: model.setLoginItem
+                            set: { model.setLoginItem($0) }
                         )
                     )
                     Text(model.loginItemStatus.description)
@@ -212,7 +212,7 @@ public struct SettingsView: View {
                             "提高对比度",
                             isOn: Binding(
                                 get: { model.systemIncreaseContrast },
-                                set: model.setSystemIncreaseContrast
+                                set: { model.setSystemIncreaseContrast($0) }
                             )
                         )
 
@@ -220,7 +220,7 @@ public struct SettingsView: View {
                             "减少透明度",
                             isOn: Binding(
                                 get: { model.systemReduceTransparency },
-                                set: model.setSystemReduceTransparency
+                                set: { model.setSystemReduceTransparency($0) }
                             )
                         )
                     }

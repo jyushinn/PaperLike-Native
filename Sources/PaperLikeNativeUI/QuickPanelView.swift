@@ -219,7 +219,7 @@ public struct QuickPanelView: View {
                     "显示模式",
                     selection: Binding(
                         get: { model.deviceState?.mode ?? .text },
-                        set: model.selectMode
+                        set: { model.selectMode($0) }
                     )
                 ) {
                     Text("网页").tag(DisplayMode.web)

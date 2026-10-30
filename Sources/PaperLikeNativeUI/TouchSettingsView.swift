@@ -15,7 +15,7 @@ struct TouchSettingsView: View {
         Group {
                 SettingsGroupBox("触控映射") {
                     VStack(alignment: .leading, spacing: 8) {
-                        Toggle("启用触控映射", isOn: Binding(get: { model.touchSettings.isEnabled }, set: model.setTouchEnabled))
+                        Toggle("启用触控映射", isOn: Binding(get: { model.touchSettings.isEnabled }, set: { model.setTouchEnabled($0) }))
                         LabeledContent("状态", value: model.touchUIState.statusText)
                         LabeledContent("坐标方案", value: model.touchCalibrationDescription)
                         HStack(spacing: 8) {
@@ -37,7 +37,7 @@ struct TouchSettingsView: View {
                 }
 
                 SettingsGroupBox("目标显示器") {
-                    Picker("输出到", selection: Binding<CGDirectDisplayID?>(get: { model.touchSelectedDisplayID }, set: model.selectTouchDisplay)) {
+                    Picker("输出到", selection: Binding<CGDirectDisplayID?>(get: { model.touchSelectedDisplayID }, set: { model.selectTouchDisplay(id: $0) })) {
                         Text("自动识别 PaperLike").tag(nil as CGDirectDisplayID?)
                         ForEach(model.touchAvailableDisplays, id: \.id) { display in
                             Text(display.name).tag(display.id as CGDirectDisplayID?)
@@ -49,11 +49,11 @@ struct TouchSettingsView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Toggle("自然滚动", isOn: Binding(
                             get: { model.touchSettings.isNaturalScrolling },
-                            set: model.setTouchNaturalScrolling
+                            set: { model.setTouchNaturalScrolling($0) }
                         ))
                         Toggle("惯性滚动", isOn: Binding(
                             get: { model.touchSettings.isInertialScrollEnabled },
-                            set: model.setTouchInertialScrolling
+                            set: { model.setTouchInertialScrolling($0) }
                         ))
                         if model.touchSettings.isInertialScrollEnabled {
                             VStack(alignment: .leading, spacing: 4) {
@@ -69,7 +69,7 @@ struct TouchSettingsView: View {
                                 Slider(
                                     value: Binding(
                                         get: { model.touchSettings.inertiaFriction },
-                                        set: model.setTouchInertiaFriction
+                                        set: { model.setTouchInertiaFriction($0) }
                                     ),
                                     in: 0.82...0.97,
                                     step: 0.01
@@ -88,7 +88,7 @@ struct TouchSettingsView: View {
                             Slider(
                                 value: Binding(
                                     get: { model.touchSettings.scrollSpeed },
-                                    set: model.setTouchScrollSpeed
+                                    set: { model.setTouchScrollSpeed($0) }
                                 ),
                                 in: 0.5...3.0,
                                 step: 0.1
@@ -102,7 +102,7 @@ struct TouchSettingsView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Toggle("单指滚动（长按拖拽）", isOn: Binding(
                             get: { model.touchSettings.isSingleFingerScrollEnabled },
-                            set: model.setTouchSingleFingerScroll
+                            set: { model.setTouchSingleFingerScroll($0) }
                         ))
                         .help("滑动以滚动，长按0.4秒以拖拽，轻触以点击。")
 
@@ -110,7 +110,7 @@ struct TouchSettingsView: View {
 
                         Toggle("触控时隐藏光标", isOn: Binding(
                             get: { model.touchSettings.isCursorHiddenOnTouch },
-                            set: model.setTouchCursorHidden
+                            set: { model.setTouchCursorHidden($0) }
                         ))
                         .help("使用鼠标或触控板时重新显示光标。")
 
@@ -118,11 +118,11 @@ struct TouchSettingsView: View {
 
                         Toggle("捏合缩放（兼容应用）", isOn: Binding(
                             get: { model.touchSettings.isPinchToZoomEnabled },
-                            set: model.setTouchPinchToZoom
+                            set: { model.setTouchPinchToZoom($0) }
                         ))
                         Toggle("双指轻触右键", isOn: Binding(
                             get: { model.touchSettings.isTwoFingerRightClickEnabled },
-                            set: model.setTouchTwoFingerRightClick
+                            set: { model.setTouchTwoFingerRightClick($0) }
                         ))
                     }
                 }
@@ -143,7 +143,7 @@ struct TouchSettingsView: View {
                                 .centeredInSettingsList()
                         }
                         .frame(maxWidth: .infinity)
-                        Toggle("测试触点（不移动鼠标）", isOn: Binding(get: { model.touchIsTesting }, set: model.setTouchTesting))
+                        Toggle("测试触点（不移动鼠标）", isOn: Binding(get: { model.touchIsTesting }, set: { model.setTouchTesting($0) }))
                             .disabled(!model.touchUIState.canToggleTesting || model.allControlsPaused)
                         if model.touchIsTesting {
                             Text(model.touchContactSummary).font(.system(.caption, design: .monospaced)).textSelection(.enabled)

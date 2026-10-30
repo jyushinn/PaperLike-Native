@@ -7,11 +7,11 @@ struct ExperimentalFeaturesView: View {
         SettingsList {
                 SettingsGroupBox("画面曲线 · 驱动实验") {
                     DisclosureGroup("通道曲线校准") {
-                        Toggle("启用独立通道曲线", isOn: Binding(get: { model.isGrayscaleEnabled }, set: model.setGrayscaleEnabled))
-                        curveSlider("红色阈值", value: model.grayscaleRedThreshold, range: 0...1, set: model.setGrayscaleRedThreshold)
-                        curveSlider("绿色阈值", value: model.grayscaleGreenThreshold, range: 0...1, set: model.setGrayscaleGreenThreshold)
-                        curveSlider("蓝色阈值", value: model.grayscaleBlueThreshold, range: 0...1, set: model.setGrayscaleBlueThreshold)
-                        curveSlider("曲线强度", value: model.grayscaleContrast, range: 1...20, set: model.setGrayscaleContrast)
+                        Toggle("启用独立通道曲线", isOn: Binding(get: { model.isGrayscaleEnabled }, set: { model.setGrayscaleEnabled($0) }))
+                        curveSlider("红色阈值", value: model.grayscaleRedThreshold, range: 0...1, set: { model.setGrayscaleRedThreshold($0) })
+                        curveSlider("绿色阈值", value: model.grayscaleGreenThreshold, range: 0...1, set: { model.setGrayscaleGreenThreshold($0) })
+                        curveSlider("蓝色阈值", value: model.grayscaleBlueThreshold, range: 0...1, set: { model.setGrayscaleBlueThreshold($0) })
+                        curveSlider("曲线强度", value: model.grayscaleContrast, range: 1...20, set: { model.setGrayscaleContrast($0) })
                     }
                     .disabled(!model.displayConnected)
                     Button("恢复打开应用前的画面曲线") { model.restoreDisplayCalibration() }
@@ -19,7 +19,7 @@ struct ExperimentalFeaturesView: View {
                 }
                 SettingsGroupBox("画面抖动 · 驱动实验") {
                     VStack(alignment: .leading, spacing: 8) {
-                        Toggle("画面抖动", isOn: Binding(get: { model.ditheringEnabled }, set: model.setDithering))
+                        Toggle("画面抖动", isOn: Binding(get: { model.ditheringEnabled }, set: { model.setDithering($0) }))
                             .disabled(!model.ditheringAvailable)
                         Button("恢复打开应用前的值") { model.restoreExperimentalDithering() }
                             .disabled(!model.ditheringAvailable)
@@ -28,7 +28,7 @@ struct ExperimentalFeaturesView: View {
                     }
                 }
                 SettingsGroupBox("均匀性 · 未验证效果") {
-                    Toggle("均匀性驱动选项", isOn: Binding(get: { model.enhancementEnabled }, set: model.setEnhancement))
+                    Toggle("均匀性驱动选项", isOn: Binding(get: { model.enhancementEnabled }, set: { model.setEnhancement($0) }))
                         .disabled(!model.enhancementAvailable)
                 }
                 TouchSettingsView(model: model)
