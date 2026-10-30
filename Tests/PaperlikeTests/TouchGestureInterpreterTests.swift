@@ -109,7 +109,10 @@ func touchGestureInterpreterTests() -> [TestCase] {
                     engine.start(vx: 10, vy: 0) { dx, _ in displacement += dx }
                     defer { engine.stop() }
                     now = frames / 60
-                    RunLoop.main.run(until: Date().addingTimeInterval(0.025))
+                    let deadline = Date().addingTimeInterval(1)
+                    while displacement == 0 && Date() < deadline {
+                        RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+                    }
                     let decay = pow(CGFloat(0.92), CGFloat(frames))
                     try expect(abs(engine.currentVelocity.x - 10 * decay) < 0.00001, "velocity decay follows \(frames) real frames")
                     let expectedDistance = 10 * 0.92 * (1 - decay) / (1 - 0.92)
