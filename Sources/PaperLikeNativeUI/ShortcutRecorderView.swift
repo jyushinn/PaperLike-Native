@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import AppKit
 import Carbon
 import PaperlikeCore
@@ -19,7 +20,7 @@ struct ShortcutRecorderView: View {
                         Image(systemName: "xmark.circle.fill")
                     }
                     .buttonStyle(.borderless)
-                    .help("清除")
+                    .help(L("清除"))
                 }
             }
         }
@@ -70,7 +71,7 @@ private struct ShortcutCaptureButton: NSViewRepresentable {
 
         var displayText: String {
             guard let definition = definition.wrappedValue else {
-                return "未设置"
+                return L("未设置")
             }
             var parts: [String] = []
             if definition.modifiers & UInt32(controlKey) != 0 {
@@ -92,7 +93,7 @@ private struct ShortcutCaptureButton: NSViewRepresentable {
         @objc func beginRecording() {
             stopRecording()
             isRecording = true
-            button?.title = "请按快捷键…"
+            button?.title = L("请按快捷键…")
             monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) {
                 [weak self] event in
                 guard let self else { return event }
@@ -144,13 +145,13 @@ private struct ShortcutCaptureButton: NSViewRepresentable {
                 31: "O", 32: "U", 34: "I", 35: "P", 37: "L",
                 38: "J", 40: "K", 45: "N", 46: "M",
                 24: "+", 27: "−"
-            ][code] ?? "键\(code)"
+            ][code] ?? L("键\(code)")
         }
     }
 }
 
 struct ShortcutRecorderView_Previews: PreviewProvider {
     static var previews: some View {
-        ShortcutRecorderView(title: "切换显示模式", definition: .constant(nil))
+        ShortcutRecorderView(title: L("切换显示模式"), definition: .constant(nil))
     }
 }

@@ -23,13 +23,14 @@ export CLANG_MODULE_CACHE_PATH="$clang_cache"
 export SWIFTPM_MODULECACHE_OVERRIDE="$swiftpm_cache"
 
 cd "$repo_root"
-# CLT's swiftbuild needs explicit linker metadata to opt into the current native UI.
+# Use SwiftPM's native builder: swiftbuild fails to emit resource-target dependency files with per-file optimization.
+# Explicit linker metadata opts into the current native UI.
 # Keep per-file optimization: Swift 6.2 whole-module builds report a circular reference.
-swift build --disable-sandbox --sdk "$sdk_path" \
+swift build --build-system native --disable-sandbox --sdk "$sdk_path" \
   -c "$configuration" --arch arm64 --product PaperLikeNative \
   -Xswiftc -no-whole-module-optimization \
   -Xlinker -platform_version -Xlinker macos -Xlinker "$minimum_os" -Xlinker "$sdk_version"
-binary_dir=$(swift build --disable-sandbox --sdk "$sdk_path" \
+binary_dir=$(swift build --build-system native --disable-sandbox --sdk "$sdk_path" \
   -c "$configuration" --arch arm64 --show-bin-path)
 
 if [[ -d "$app_path" ]]; then
@@ -37,12 +38,14 @@ if [[ -d "$app_path" ]]; then
 fi
 mkdir -p "$app_path/Contents/MacOS"
 mkdir -p "$app_path/Contents/Resources"
+cp -R "$binary_dir"/*_PaperlikeLocalization.bundle "$app_path/Contents/Resources/"
 cp "$binary_dir/PaperLikeNative" "$app_path/Contents/MacOS/PaperLikeNative"
 # Xcode preview builds may emit companion dylibs; keep them beside the executable.
 for companion_dylib in "$binary_dir"/PaperLikeNative*.dylib(N) "$binary_dir"/__preview.dylib(N); do
   cp "$companion_dylib" "$app_path/Contents/MacOS/"
 done
 cp "$repo_root/Resources/Info.plist" "$app_path/Contents/Info.plist"
+cp -R "$repo_root/Resources/en.lproj" "$repo_root/Resources/zh-Hans.lproj" "$app_path/Contents/Resources/"
 cp "$repo_root/LICENSE" "$app_path/Contents/Resources/LICENSE.txt"
 cp "$repo_root/Resources/AppIcon/Paperlike-Native.icns" "$app_path/Contents/Resources/Paperlike-Native.icns"
 for icon_svg in "$repo_root"/Resources/MenuBarIcons/*.svg; do

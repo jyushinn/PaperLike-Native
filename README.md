@@ -12,7 +12,7 @@ PaperLike Native is an independent, unofficial project for learning and research
 
 Open the menu bar panel to access display, front light, automation, and touch controls.
 
-<img src="docs/images/menu-bar-panel-review.png" width="507" alt="PaperLike Native menu bar control panel">
+<img src="docs/images/menu-bar-panel-en.png" width="507" alt="PaperLike Native menu bar control panel">
 
 ## Features
 
@@ -39,6 +39,8 @@ Refresh speed cannot be read back from the device, so the last setting shown is 
 Display curves change the mapping of light and dark tones; they are not true saturation or grayscale conversion. This project does not overclock the display or force a higher refresh rate.
 
 ## Getting started
+
+The interface supports English and Simplified Chinese and follows the system language by default. Choose a language in Settings → General → System → Language; changes apply immediately and are remembered. Custom scene, rule, and preset names stay as entered.
 
 1. Download the installer from the project's Releases page and move the app to Applications.
 2. Connect the display and open the panel from the menu bar. Quit any other client using the same control serial port first.
@@ -76,8 +78,6 @@ Full Xcode can compile the Icon Composer asset. With only Command Line Tools, th
 - [Changelog](CHANGELOG.md)
 
 When reporting a problem, include the app version, macOS version, display model, and steps to reproduce. Distinguish video, serial, and touch connection states. Remove personal information, device serial numbers, and configuration data before sharing diagnostics.
-
-Author: [X · @teno_liu](https://x.com/teno_liu)
 
 ## License
 

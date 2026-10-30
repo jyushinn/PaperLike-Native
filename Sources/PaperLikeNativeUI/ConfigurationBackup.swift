@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import Foundation
 import PaperlikeCore
 import PaperlikeTouch
@@ -28,7 +29,7 @@ private struct ConfigurationImportRollbackError: LocalizedError {
     let original: Error
     let rollback: Error
     var errorDescription: String? {
-        "导入失败：\(original.localizedDescription)；恢复也未完成：\(rollback.localizedDescription)"
+        L("导入失败：\(original.localizedDescription)；恢复也未完成：\(rollback.localizedDescription)")
     }
 }
 
@@ -51,13 +52,13 @@ public struct DisplayPreset: Codable, Equatable, Identifiable, Sendable {
     }
 
     public static let builtIns = [
-        DisplayPreset(name: "我的场景", mode: .text, threshold: 5, speed: 2)
+        DisplayPreset(name: L("我的场景"), mode: .text, threshold: 5, speed: 2)
     ]
 
     public static func updatingMyScene(existing: [DisplayPreset], with preset: DisplayPreset) -> [DisplayPreset] {
         let scene = DisplayPreset(
             id: existing.first?.id ?? preset.id,
-            name: "我的场景",
+            name: L("我的场景"),
             mode: preset.mode,
             threshold: preset.threshold,
             speed: preset.speed,
@@ -156,9 +157,9 @@ public enum ConfigurationBackupError: Error, Equatable, LocalizedError {
     case tooLarge, unsupportedVersion, invalidValues
     public var errorDescription: String? {
         switch self {
-        case .tooLarge: "配置文件超过 1 MB，无法导入。"
-        case .unsupportedVersion: "不支持此配置版本。"
-        case .invalidValues: "配置包含无效参数、重复项目或过多规则，未修改现有设置。"
+        case .tooLarge: L("配置文件超过 1 MB，无法导入。")
+        case .unsupportedVersion: L("不支持此配置版本。")
+        case .invalidValues: L("配置包含无效参数、重复项目或过多规则，未修改现有设置。")
         }
     }
 }
@@ -186,21 +187,21 @@ public struct ConfigurationBackup: Codable, Equatable, Identifiable, Sendable {
     public func impactSummary(comparedTo previous: ConfigurationBackup) -> [String] {
         var changes: [String] = []
         if settings.rules != previous.settings.rules || settings.isAppAdaptationEnabled != previous.settings.isAppAdaptationEnabled {
-            changes.append("应用规则：\(previous.settings.rules.count) → \(settings.rules.count) 条（内容或启用状态变化）")
+            changes.append(L("应用规则：\(previous.settings.rules.count) → \(settings.rules.count) 条（内容或启用状态变化）"))
         }
-        if automation != previous.automation { changes.append("前光规则：\(previous.automation.rules.count) → \(automation.rules.count) 条（内容或启用状态变化）") }
+        if automation != previous.automation { changes.append(L("前光规则：\(previous.automation.rules.count) → \(automation.rules.count) 条（内容或启用状态变化）")) }
         let keys = [settings.modeHotKey, settings.refreshHotKey, settings.thresholdUpHotKey, settings.thresholdDownHotKey]
         let previousKeys = [previous.settings.modeHotKey, previous.settings.refreshHotKey, previous.settings.thresholdUpHotKey, previous.settings.thresholdDownHotKey]
-        if keys != previousKeys { changes.append("全局快捷键将立即更换") }
-        if touch.displaySelection != previous.touch.displaySelection { changes.append("触控目标显示器将更换；恢复自动控制后使用") }
-        if touch != previous.touch { changes.append("触控参数将保存，触控保持暂停") }
+        if keys != previousKeys { changes.append(L("全局快捷键将立即更换")) }
+        if touch.displaySelection != previous.touch.displaySelection { changes.append(L("触控目标显示器将更换；恢复自动控制后使用")) }
+        if touch != previous.touch { changes.append(L("触控参数将保存，触控保持暂停")) }
         if [settings.saturationValue, settings.redThreshold, settings.greenThreshold, settings.blueThreshold, settings.contrastSlope] != [previous.settings.saturationValue, previous.settings.redThreshold, previous.settings.greenThreshold, previous.settings.blueThreshold, previous.settings.contrastSlope] || settings.isGrayscaleEnabled != previous.settings.isGrayscaleEnabled {
-            changes.append("画面校准变化；恢复自动控制时应用于显示器")
+            changes.append(L("画面校准变化；恢复自动控制时应用于显示器"))
         }
-        if settings.autoRefreshEnabled != previous.settings.autoRefreshEnabled || settings.autoRefreshIntervalSeconds != previous.settings.autoRefreshIntervalSeconds { changes.append("自动清残影设置变化；恢复自动控制后运行") }
-        if presets != previous.presets { changes.append("场景：\(previous.presets.count) → \(presets.count) 个；需手动应用场景") }
-        if let frontLightPresets, frontLightPresets != previous.frontLightPresets { changes.append("前光预设：\(previous.frontLightPresets?.count ?? 0) → \(frontLightPresets.count) 个") }
-        return changes.isEmpty ? ["配置内容相同；导入后自动控制仍会暂停。"] : changes
+        if settings.autoRefreshEnabled != previous.settings.autoRefreshEnabled || settings.autoRefreshIntervalSeconds != previous.settings.autoRefreshIntervalSeconds { changes.append(L("自动清残影设置变化；恢复自动控制后运行")) }
+        if presets != previous.presets { changes.append(L("场景：\(previous.presets.count) → \(presets.count) 个；需手动应用场景")) }
+        if let frontLightPresets, frontLightPresets != previous.frontLightPresets { changes.append(L("前光预设：\(previous.frontLightPresets?.count ?? 0) → \(frontLightPresets.count) 个")) }
+        return changes.isEmpty ? [L("配置内容相同；导入后自动控制仍会暂停。")] : changes
     }
 
     public func encoded() throws -> Data {

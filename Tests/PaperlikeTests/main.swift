@@ -1,4 +1,8 @@
 import Darwin
+import Foundation
+
+// Keep existing Chinese presentation expectations independent of the host language.
+UserDefaults.standard.setVolatileDomain(["PaperLikeNative.Language": "zh-Hans"], forName: UserDefaults.argumentDomain)
 
 let filters = Array(CommandLine.arguments.dropFirst())
 let allTests = paperlikeFrameTests()
@@ -7,6 +11,7 @@ let allTests = paperlikeFrameTests()
     + debouncedLightingCommandCoordinatorTests()
     + lightingCommandSessionStateTests()
     + nativeInterfaceContractTests()
+    + localizationTests()
     + serialConnectionTests()
     + serialDeviceMonitorTests()
     + paperlikeDeviceControllerTests()

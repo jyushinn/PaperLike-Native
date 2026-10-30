@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import CoreGraphics
 import Foundation
 
@@ -221,7 +222,7 @@ public struct TouchMappingSettings: Equatable, Sendable, Codable {
 }
 
 private struct TouchSettingsSizeError: LocalizedError {
-    var errorDescription: String? { "触控校准数据过多，未保存或应用此次更改。" }
+    var errorDescription: String? { L("触控校准数据过多，未保存或应用此次更改。") }
 }
 
 @MainActor

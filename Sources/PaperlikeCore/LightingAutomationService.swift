@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import Foundation
 
 public struct LightingAutomationStatus: Equatable, Sendable {
@@ -220,7 +221,7 @@ public actor LightingAutomationService {
                 } catch {
                     guard evaluationRevision == revision else { return }
                     publish(LightingAutomationStatus(activeRule: nil, nextBoundary: nil, isPaused: false,
-                        failureMessage: "恢复前光未完成，30 秒后重试。"))
+                        failureMessage: L("恢复前光未完成，30 秒后重试。")))
                     scheduleBoundary(nil, retry: true)
                     return
                 }
@@ -264,7 +265,7 @@ public actor LightingAutomationService {
                 succeeded = true
             } catch {
                 succeeded = false
-                failure = "执行未完成，部分设置可能已生效；30 秒后重试。"
+                failure = L("执行未完成，部分设置可能已生效；30 秒后重试。")
             }
             guard evaluationRevision == revision else {
                 await reevaluate(
@@ -300,7 +301,7 @@ public actor LightingAutomationService {
                 } catch {
                     guard evaluationRevision == revision else { return }
                     publish(LightingAutomationStatus(activeRule: nil, nextBoundary: decision.nextBoundary,
-                        isPaused: isPaused, failureMessage: "恢复前光未完成，30 秒后重试。"))
+                        isPaused: isPaused, failureMessage: L("恢复前光未完成，30 秒后重试。")))
                     scheduleBoundary(decision.nextBoundary, retry: true)
                     return
                 }

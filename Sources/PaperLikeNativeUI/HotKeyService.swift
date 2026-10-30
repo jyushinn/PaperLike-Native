@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import Carbon
 import Foundation
 import PaperlikeCore
@@ -10,10 +11,10 @@ enum HotKeyAction: UInt32, CaseIterable {
 
     var title: String {
         switch self {
-        case .cycleMode: "切换显示模式"
-        case .refresh: "快速刷新"
-        case .thresholdUp: "增加对比度"
-        case .thresholdDown: "降低对比度"
+        case .cycleMode: L("切换显示模式")
+        case .refresh: L("快速刷新")
+        case .thresholdUp: L("增加对比度")
+        case .thresholdDown: L("降低对比度")
         }
     }
 }
@@ -25,9 +26,9 @@ enum HotKeyServiceError: Error, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .duplicate: "快捷键组合重复。"
-        case .registrationFailed(let status): "快捷键注册失败（\(status)）。"
-        case .rollbackFailed(let original, let restore): "\(original) 原快捷键恢复未完成：\(restore)"
+        case .duplicate: L("快捷键组合重复。")
+        case .registrationFailed(let status): L("快捷键注册失败（\(status)）。")
+        case .rollbackFailed(let original, let restore): L("\(original) 原快捷键恢复未完成：\(restore)")
         }
     }
 }

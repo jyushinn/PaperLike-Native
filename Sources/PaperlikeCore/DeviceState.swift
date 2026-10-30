@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 public enum DisplayMode: Int, CaseIterable, Codable, Sendable {
     case web = 6
     case text = 2
@@ -27,19 +28,19 @@ public struct DeviceState: Equatable, Sendable {
     public var speedDisplayText: String {
         switch speed {
         case 1:
-            "快速"
+            L("快速")
         case 2:
-            "快速+"
+            L("快速+")
         case 3:
-            "快速++"
+            L("快速++")
         case 4:
-            "快速+++"
+            L("快速+++")
         case 5:
-            "快速++++"
+            L("快速++++")
         case let x? where x > 5:
-            "未支持的速度值 (\(x))"
+            L("未支持的速度值 (\(x))")
         default:
-            "需手动选择"
+            L("需手动选择")
         }
     }
 

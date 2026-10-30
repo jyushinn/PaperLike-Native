@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import Combine
 import CoreGraphics
 import Foundation
@@ -38,9 +39,9 @@ public final class TouchMappingService: ObservableObject {
         diag.isInertiaActive = inertiaEngine.isRunning
         diag.inertiaVelocity = velocity
         if inertiaEngine.isRunning {
-            diag.gestureState = "物理惯性滑行中"
+            diag.gestureState = L("物理惯性滑行中")
             diag.speed = hypot(velocity.x, velocity.y)
-            diag.lastAction = String(format: "惯性滑行 (Vx: %+.1f, Vy: %+.1f)", velocity.x, velocity.y)
+            diag.lastAction = String(format: L("惯性滑行 (Vx: %+.1f, Vy: %+.1f)"), velocity.x, velocity.y)
         }
         return diag
     }
@@ -170,7 +171,7 @@ public final class TouchMappingService: ObservableObject {
         guard persistSettings(replacement) else {
             if !enabled {
                 pause()
-                status = .error(settingsStore.saveError ?? "触控设置未保存。")
+                status = .error(settingsStore.saveError ?? L("触控设置未保存。"))
             }
             return
         }
@@ -310,7 +311,7 @@ public final class TouchMappingService: ObservableObject {
 
     private func persistSettings(_ replacement: TouchMappingSettings) -> Bool {
         guard settingsStore.save(replacement) else {
-            status = .error(settingsStore.saveError ?? "触控设置未保存。")
+            status = .error(settingsStore.saveError ?? L("触控设置未保存。"))
             return false
         }
         return true

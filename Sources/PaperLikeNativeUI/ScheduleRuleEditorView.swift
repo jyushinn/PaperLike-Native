@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import PaperlikeCore
 import SwiftUI
 
@@ -32,7 +33,7 @@ struct ScheduleRuleEditorView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("时间规则").font(.headline)
+                Text(L("时间规则")).font(.headline)
                 Spacer()
             }
             .padding(.horizontal, 20)
@@ -40,55 +41,55 @@ struct ScheduleRuleEditorView: View {
 
             Form {
                 Section {
-                    TextField("名称", text: $editor.draft.name, prompt: Text("例如：白天"))
+                    TextField(L("名称"), text: $editor.draft.name, prompt: Text(L("例如：白天")))
                         .textFieldStyle(.roundedBorder)
-                        .help("最多120个字符")
+                        .help(L("最多120个字符"))
                     if let message = nameValidationMessage {
                         Text(message).font(.caption).foregroundStyle(.red)
                     }
-                    Toggle("启用规则", isOn: $editor.draft.isEnabled)
+                    Toggle(L("启用规则"), isOn: $editor.draft.isEnabled)
                 }
 
-                Section("重复") {
+                Section(L("重复")) {
                     HStack(spacing: 6) {
                         ForEach(Weekday.automationOrder, id: \.self) { weekday in
                             Toggle(isOn: weekdayBinding(weekday)) {
-                                Text(weekday.shortChineseName)
+                                Text(weekday.shortName)
                                     .frame(maxWidth: .infinity, minHeight: 22)
                             }
                             .toggleStyle(.button)
                             .frame(maxWidth: .infinity)
-                            .accessibilityLabel("星期" + weekday.shortChineseName)
+                            .accessibilityLabel(L("周\(weekday.shortName)"))
                         }
                     }
                     if editor.draft.weekdays.isEmpty {
-                        Text("至少选择一天").font(.caption).foregroundStyle(.red)
+                        Text(L("至少选择一天")).font(.caption).foregroundStyle(.red)
                     }
                 }
 
-                Section("时间") {
-                    DatePicker("开始", selection: minuteBinding(\.start),
+                Section(L("时间")) {
+                    DatePicker(L("开始"), selection: minuteBinding(\.start),
                                displayedComponents: .hourAndMinute)
-                    DatePicker(editor.draft.end <= editor.draft.start ? "结束（次日）" : "结束",
+                    DatePicker(editor.draft.end <= editor.draft.start ? L("结束（次日）") : L("结束"),
                                selection: minuteBinding(\.end),
                                displayedComponents: .hourAndMinute)
                 }
 
-                Section("前光") {
-                    LabeledContent("模式") {
-                        Picker("模式", selection: $editor.frontLightMode) {
-                            Text("关闭").tag(0)
-                            Text("冷光").tag(1)
-                            Text("暖光").tag(2)
-                            Text("混合").tag(3)
+                Section(L("前光")) {
+                    LabeledContent(L("模式")) {
+                        Picker(L("模式"), selection: $editor.frontLightMode) {
+                            Text(L("关闭")).tag(0)
+                            Text(L("冷光")).tag(1)
+                            Text(L("暖光")).tag(2)
+                            Text(L("混合")).tag(3)
                         }
                         .labelsHidden()
                         .pickerStyle(.segmented)
                         .frame(maxWidth: .infinity)
                     }
-                    valueSlider(title: "亮度", value: $editor.brightness)
+                    valueSlider(title: L("亮度"), value: $editor.brightness)
                         .disabled(editor.frontLightMode == 0)
-                    valueSlider(title: "色温", value: $editor.temperature)
+                    valueSlider(title: L("色温"), value: $editor.temperature)
                         .disabled(editor.frontLightMode == 0)
                 }
             }
@@ -98,10 +99,10 @@ struct ScheduleRuleEditorView: View {
 
             Divider()
             HStack {
-                Button("取消", role: .cancel) { dismiss() }
+                Button(L("取消"), role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                 Spacer()
-                Button("保存") {
+                Button(L("保存")) {
                     var result = editor.draft
                     result.name = editor.draft.name.trimmingCharacters(in: .whitespacesAndNewlines)
                     result.configuration = LightingConfiguration(
@@ -199,7 +200,7 @@ struct ScheduleRuleEditorView_Previews: PreviewProvider {
     static var previews: some View {
         ScheduleRuleEditorView(
             rule: LightingScheduleRule(
-                name: "白天",
+                name: L("白天"),
                 weekdays: [.monday],
                 start: MinuteOfDay(hour: 8, minute: 0),
                 end: MinuteOfDay(hour: 18, minute: 0),

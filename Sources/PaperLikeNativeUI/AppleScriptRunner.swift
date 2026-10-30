@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import Darwin
 import Foundation
 
@@ -76,7 +77,7 @@ private final class ScriptProcessState: @unchecked Sendable {
         self.continuation = continuation
         let deadline = DispatchWorkItem { [weak self] in
             self?.finish(.failure(NSError(domain: "PaperLikeNative.AppleScript", code: -1001,
-                userInfo: [NSLocalizedDescriptionKey: "系统设置操作超时，已请求停止子进程，请重试。"])), stopProcess: true)
+                userInfo: [NSLocalizedDescriptionKey: L("系统设置操作超时，已请求停止子进程，请重试。")])), stopProcess: true)
         }
         self.deadline = deadline
         lock.unlock()

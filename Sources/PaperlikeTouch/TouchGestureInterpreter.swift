@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import CoreGraphics
 import Foundation
 
@@ -370,10 +371,10 @@ public final class TouchGestureInterpreter {
         let activeContacts = frame.contacts.filter(\.isTouching)
         let contactDesc: String
         if activeContacts.isEmpty {
-            contactDesc = "未检测到触点 (空闲)"
+            contactDesc = L("未检测到触点 (空闲)")
         } else {
             contactDesc = activeContacts.map { c in
-                "#\(c.id): 原始坐标(\(c.x), \(c.y)) 触控面宽:\(c.width)"
+                L("#\(c.id): 原始坐标(\(c.x), \(c.y)) 触控面宽:\(c.width)")
             }.joined(separator: "\n")
         }
 
@@ -384,37 +385,37 @@ public final class TouchGestureInterpreter {
 
         switch state {
         case .idle:
-            stateStr = "空闲"
+            stateStr = L("空闲")
             twoDist = 0
             cent = .zero
             vel = .zero
         case .oneFingerPending(_, _, let last, _):
-            stateStr = "单指轻触预备"
+            stateStr = L("单指轻触预备")
             twoDist = 0
             cent = last
             vel = .zero
         case .dragging(_, let last):
-            stateStr = "单指长按拖拽选中中"
+            stateStr = L("单指长按拖拽选中中")
             twoDist = 0
             cent = last
             vel = .zero
         case .twoFingerPending(let start, let last, _, let d, _, _):
-            stateStr = "双指手势预备"
+            stateStr = L("双指手势预备")
             twoDist = d
             cent = last
             vel = CGPoint(x: last.x - start.x, y: last.y - start.y)
         case .scrolling(let last, let d, let v, _, _):
-            stateStr = d != nil ? "双指物理滚动中" : "单指物理滚动中"
+            stateStr = d != nil ? L("双指物理滚动中") : L("单指物理滚动中")
             twoDist = d ?? 0
             cent = last
             vel = v
         case .pinching(let d, let c):
-            stateStr = "双指捏合缩放中"
+            stateStr = L("双指捏合缩放中")
             twoDist = d
             cent = c
             vel = .zero
         case .ignoredUntilClear:
-            stateStr = "等待所有手指离屏复位"
+            stateStr = L("等待所有手指离屏复位")
             twoDist = 0
             cent = .zero
             vel = .zero
@@ -424,23 +425,23 @@ public final class TouchGestureInterpreter {
         if let ev = events.last {
             switch ev {
             case .move(let pt):
-                actionDesc = "移动 (\(Int(pt.x)), \(Int(pt.y)))"
+                actionDesc = L("移动 (\(Int(pt.x)), \(Int(pt.y)))")
             case .leftDown:
-                actionDesc = "单指点击按下"
+                actionDesc = L("单指点击按下")
             case .leftDragged(let pt):
-                actionDesc = "拖拽移动 (\(Int(pt.x)), \(Int(pt.y)))"
+                actionDesc = L("拖拽移动 (\(Int(pt.x)), \(Int(pt.y)))")
             case .leftUp:
-                actionDesc = "单指抬起"
+                actionDesc = L("单指抬起")
             case .rightDown:
-                actionDesc = "双指右键触发"
+                actionDesc = L("双指右键触发")
             case .rightUp:
-                actionDesc = "双指右键释放"
+                actionDesc = L("双指右键释放")
             case .scroll(let dx, let dy, _):
-                actionDesc = String(format: "滚动 (dx: %+.1f, dy: %+.1f)", dx, dy)
+                actionDesc = String(format: L("滚动 (dx: %+.1f, dy: %+.1f)"), dx, dy)
             case .zoom(let d, _):
-                actionDesc = String(format: "Command+滚轮缩放 (%@, tick: %+.1f)", d > 0 ? "放大" : "缩小", d)
+                actionDesc = String(format: L("Command+滚轮缩放 (%@, tick: %+.1f)"), d > 0 ? L("放大") : L("缩小"), d)
             case .zoomEnded:
-                actionDesc = "缩放手势结束"
+                actionDesc = L("缩放手势结束")
             }
         }
 

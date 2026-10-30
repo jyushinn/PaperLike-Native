@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import Foundation
 import IOKit
 import CoreGraphics
@@ -16,15 +17,15 @@ public enum DisplayDriverError: Error, LocalizedError {
 
     public var errorDescription: String? {
         switch self {
-        case .paperlikeFramebufferNotFound: "未找到 PaperLike 显示驱动。"
-        case let .propertyUnavailable(name): "显示驱动未提供 \(name) 选项。"
-        case let .writeFailed(property, code): "驱动选项 \(property) 写入失败（\(code)）。"
-        case .paperlikeDisplayNotFound: "未找到 PaperLike 视频显示器。"
-        case .ambiguousPaperlikeDisplays: "无法唯一识别目标 PaperLike，未修改显示设置。"
-        case .displayUnavailable: "原显示器暂不可用，恢复备份仍保留。"
-        case .invalidCalibration: "画面曲线参数无效。"
-        case .invalidGammaTable: "无法读取有效的原始画面曲线，未写入新曲线。"
-        case let .gammaFailed(operation, code): "系统画面曲线 \(operation) 失败（\(code.rawValue)）。"
+        case .paperlikeFramebufferNotFound: L("未找到 PaperLike 显示驱动。")
+        case let .propertyUnavailable(name): L("显示驱动未提供 \(name) 选项。")
+        case let .writeFailed(property, code): L("驱动选项 \(property) 写入失败（\(code)）。")
+        case .paperlikeDisplayNotFound: L("未找到 PaperLike 视频显示器。")
+        case .ambiguousPaperlikeDisplays: L("无法唯一识别目标 PaperLike，未修改显示设置。")
+        case .displayUnavailable: L("原显示器暂不可用，恢复备份仍保留。")
+        case .invalidCalibration: L("画面曲线参数无效。")
+        case .invalidGammaTable: L("无法读取有效的原始画面曲线，未写入新曲线。")
+        case let .gammaFailed(operation, code): L("系统画面曲线 \(operation) 失败（\(code.rawValue)）。")
         }
     }
 }

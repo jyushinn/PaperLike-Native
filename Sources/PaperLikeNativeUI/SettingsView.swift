@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import SwiftUI
 
 enum SettingsWindowLayout {
@@ -30,13 +31,13 @@ public enum SettingsDestination: CaseIterable, Hashable, Identifiable {
 
     public var title: String {
         switch self {
-        case .general: "通用"
-        case .appAdaptation: "应用自适应"
-        case .automation, .configurations: "场景"
-        case .touch: "触控"
-        case .diagnostics: "关于"
-        case .experiments: "实验室"
-        case .about: "关于"
+        case .general: L("通用")
+        case .appAdaptation: L("应用自适应")
+        case .automation, .configurations: L("场景")
+        case .touch: L("触控")
+        case .diagnostics: L("关于")
+        case .experiments: L("实验室")
+        case .about: L("关于")
         }
     }
 
@@ -89,9 +90,9 @@ struct SettingsPanelGroupBox<Content: View>: View {
     }
 
     var body: some View {
-        GroupBox(label: Text(title).padding(4)) {
+        GroupBox(label: Text(title)) {
             VStack(alignment: .leading, spacing: 4) { content }
-                .padding(4)
+                .padding(2)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .accessibilityElement(children: .contain)
         }
@@ -155,17 +156,20 @@ public struct SettingsView: View {
             .id(rule.id)
         }
         .alert("PaperLike Native", isPresented: Binding(get: { model.errorMessage != nil }, set: { if !$0 { model.errorMessage = nil } })) {
-            Button("好") { model.errorMessage = nil }
+            Button(L("好")) { model.errorMessage = nil }
             if model.configurationRecoveryNeeded {
-                Button("恢复配置…") {
+                Button(L("恢复配置…")) {
                     model.errorMessage = nil
                     model.recoveryWizardPresented = true
                     model.settingsDestination = .automation
                 }
             }
         } message: { Text(model.errorMessage ?? "") }
+        .id(model.language.resolvedIdentifier())
+        .environment(\.locale, model.language.locale)
         .onAppear { model.refreshTouchPermission(); model.reloadAccessibilitySettings(); model.refreshLoginItemStatus() }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            model.objectWillChange.send()
             model.refreshTouchPermission()
             model.reloadAccessibilitySettings()
             model.refreshLoginItemStatus()
@@ -190,9 +194,14 @@ public struct SettingsView: View {
 
     private var generalSettings: some View {
         SettingsList {
-                SettingsGroupBox("系统") {
+                SettingsGroupBox(L("系统")) {
+                    Picker(L("语言"), selection: $model.language) {
+                        ForEach(AppLanguage.allCases, id: \.self) { language in
+                            Text(language.title).tag(language)
+                        }
+                    }
                     Toggle(
-                        "登录时启动",
+                        L("登录时启动"),
                         isOn: Binding(
                             get: { model.loginItemEnabled },
                             set: { model.setLoginItem($0) }
@@ -201,15 +210,15 @@ public struct SettingsView: View {
                     Text(model.loginItemStatus.description)
                         .font(.callout).foregroundStyle(.secondary)
                     if model.loginItemStatus == .requiresApproval || model.loginItemStatus == .notFound {
-                        Button("打开系统登录项设置") { model.openLoginItemSettings() }
+                        Button(L("打开系统登录项设置")) { model.openLoginItemSettings() }
                             .centeredInSettingsList()
                     }
                 }
 
-                SettingsGroupBox("系统辅助功能（影响整个 Mac）") {
+                SettingsGroupBox(L("系统辅助功能（影响整个 Mac）")) {
                     VStack(alignment: .leading, spacing: 8) {
                         Toggle(
-                            "提高对比度",
+                            L("提高对比度"),
                             isOn: Binding(
                                 get: { model.systemIncreaseContrast },
                                 set: { model.setSystemIncreaseContrast($0) }
@@ -217,7 +226,7 @@ public struct SettingsView: View {
                         )
 
                         Toggle(
-                            "减少透明度",
+                            L("减少透明度"),
                             isOn: Binding(
                                 get: { model.systemReduceTransparency },
                                 set: { model.setSystemReduceTransparency($0) }
@@ -226,19 +235,19 @@ public struct SettingsView: View {
                     }
                     .disabled(model.isSystemSettingsUpdating)
                     if model.isSystemSettingsUpdating { ProgressView().controlSize(.small) }
-                    Button("自动化授权设置") {
+                    Button(L("自动化授权设置")) {
                         NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation")!)
                     }
                     .centeredInSettingsList()
                 }
 
-                SettingsGroupBox("全局快捷键") {
+                SettingsGroupBox(L("全局快捷键")) {
                     if !model.hotKeyRegistrationIssues.isEmpty {
-                        Label("部分已保存快捷键尚未生效", systemImage: "exclamationmark.triangle")
+                        Label(L("部分已保存快捷键尚未生效"), systemImage: "exclamationmark.triangle")
                             .foregroundStyle(.orange)
-                        Text("实际注册与已保存组合不一致：" + model.hotKeyRegistrationIssues.map(\.title).joined(separator: "、"))
+                        Text(L("实际注册与已保存组合不一致：") + model.hotKeyRegistrationIssues.map(\.title).joined(separator: "、"))
                             .font(.callout)
-                        Button("重试已保存快捷键") { model.retrySavedHotKeys() }
+                        Button(L("重试已保存快捷键")) { model.retrySavedHotKeys() }
                     }
                     ViewThatFits(in: .horizontal) {
                         shortcuts(columns: [GridItem(.flexible()), GridItem(.flexible())])
@@ -255,19 +264,19 @@ public struct SettingsView: View {
     private func shortcuts(columns: [GridItem]) -> some View {
                     LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
                         ShortcutRecorderView(
-                            title: "切换显示模式",
+                            title: L("切换显示模式"),
                             definition: $model.settings.modeHotKey
                         )
                         ShortcutRecorderView(
-                            title: "快速刷新",
+                            title: L("快速刷新"),
                             definition: $model.settings.refreshHotKey
                         )
                         ShortcutRecorderView(
-                            title: "增加对比度",
+                            title: L("增加对比度"),
                             definition: $model.settings.thresholdUpHotKey
                         )
                         ShortcutRecorderView(
-                            title: "降低对比度",
+                            title: L("降低对比度"),
                             definition: $model.settings.thresholdDownHotKey
                         )
                     }
@@ -275,7 +284,7 @@ public struct SettingsView: View {
 
     private var aboutSettings: some View {
         SettingsList {
-                SettingsGroupBox("关于") {
+                SettingsGroupBox(L("关于")) {
                     VStack(spacing: 4) {
                         Image(nsImage: PaperLikeArtwork.applicationIcon)
                             .resizable()
@@ -285,7 +294,7 @@ public struct SettingsView: View {
                         Text("PaperLike Native")
                             .font(.title2)
                             .bold()
-                        Text("版本 \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—") (Build \(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"))")
+                        Text(L("版本 \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—") (Build \(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"))"))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         Link(destination: URL(string: "https://x.com/teno_liu")!) {

@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import PaperlikeCore
 import SwiftUI
 
@@ -27,13 +28,13 @@ struct AppAdaptationSettingsView: View {
 
     var body: some View {
         SettingsList {
-                SettingsGroupBox("设置自适应") {
+                SettingsGroupBox(L("设置自适应")) {
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
-                            Text("启用应用自适应")
+                            Text(L("启用应用自适应"))
                                 .font(.headline)
                             Spacer()
-                            Toggle("启用", isOn: Binding(
+                            Toggle(L("启用"), isOn: Binding(
                                 get: { model.settings.isAppAdaptationEnabled },
                                 set: {
                                     model.settings.isAppAdaptationEnabled = $0
@@ -47,16 +48,16 @@ struct AppAdaptationSettingsView: View {
                 }
 
                 if model.settings.isAppAdaptationEnabled || !model.appRulesForEditing.isEmpty {
-                    SettingsGroupBox("新增匹配规则") {
+                    SettingsGroupBox(L("新增匹配规则")) {
                         VStack(alignment: .leading, spacing: 10) {
-                            Toggle("手动输入 Bundle ID", isOn: $model.isCustomApp)
+                            Toggle(L("手动输入 Bundle ID"), isOn: $model.isCustomApp)
                                 .font(.caption)
 
                             if model.isCustomApp {
                                 HStack(spacing: 12) {
-                                    TextField("应用名称（最多 120 字符）", text: $model.customAppName)
+                                    TextField(L("应用名称（最多 120 字符）"), text: $model.customAppName)
                                         .textFieldStyle(.roundedBorder)
-                                    TextField("Bundle ID（最多 255 字符）", text: $model.customBundleId)
+                                    TextField(L("Bundle ID（最多 255 字符）"), text: $model.customBundleId)
                                         .textFieldStyle(.roundedBorder)
                                 }
                                 if (!model.customAppName.isEmpty || !model.customBundleId.isEmpty),
@@ -64,9 +65,9 @@ struct AppAdaptationSettingsView: View {
                                     Text(message).font(.caption).foregroundStyle(.red)
                                 }
                             } else {
-                                Picker("选择运行中的应用", selection: $model.selectedBundleId) {
+                                Picker(L("选择运行中的应用"), selection: $model.selectedBundleId) {
                                     if model.selectedBundleId.isEmpty {
-                                        Text("--- 请选择应用 ---").tag("")
+                                        Text(L("--- 请选择应用 ---")).tag("")
                                     }
                                     ForEach(runningApps, id: \.bundleId) { app in
                                         Text(app.name).tag(app.bundleId)
@@ -76,16 +77,16 @@ struct AppAdaptationSettingsView: View {
                             }
 
                             HStack(spacing: 20) {
-                                Picker("显示模式", selection: $model.selectedMode) {
-                                    Text("网页").tag(DisplayMode.web)
-                                    Text("文字").tag(DisplayMode.text)
-                                    Text("图像").tag(DisplayMode.image)
-                                    Text("动态").tag(DisplayMode.active)
+                                Picker(L("显示模式"), selection: $model.selectedMode) {
+                                    Text(L("网页")).tag(DisplayMode.web)
+                                    Text(L("文字")).tag(DisplayMode.text)
+                                    Text(L("图像")).tag(DisplayMode.image)
+                                    Text(L("动态")).tag(DisplayMode.active)
                                 }
                                 .frame(width: 200)
 
                                 HStack {
-                                    Text("对比度:")
+                                    Text(L("对比度:"))
                                     Slider(value: Binding(
                                         get: { Double(model.selectedThreshold) },
                                         set: { model.selectedThreshold = Int($0.rounded()) }
@@ -100,7 +101,7 @@ struct AppAdaptationSettingsView: View {
                                 Button {
                                     addRule()
                                 } label: {
-                                    Label("添加规则", systemImage: "plus")
+                                    Label(L("添加规则"), systemImage: "plus")
                                 }
                                 .buttonStyle(.borderedProminent)
                                 .disabled(isAddDisabled)
@@ -110,20 +111,20 @@ struct AppAdaptationSettingsView: View {
                         }
                     }
 
-                    SettingsGroupBox("已有规则列表") {
-                        Text("\(model.appRulesForEditing.count)/\(SettingsValidation.maximumRules) 条规则").font(.caption).foregroundStyle(.secondary)
+                    SettingsGroupBox(L("已有规则列表")) {
+                        Text(L("\(model.appRulesForEditing.count)/\(SettingsValidation.maximumRules) 条规则")).font(.caption).foregroundStyle(.secondary)
                         if let message = model.appRuleRepairMessage {
-                            Label(model.appRuleDraft.rules == nil ? "现有规则需要修复" : "规则修改尚未保存", systemImage: "exclamationmark.triangle")
+                            Label(model.appRuleDraft.rules == nil ? L("现有规则需要修复") : L("规则修改尚未保存"), systemImage: "exclamationmark.triangle")
                                 .foregroundStyle(.orange)
                             Text(message).font(.callout)
-                            Text("修正所有无效规则后自动保存。关闭应用将丢弃未保存的修改。")
+                            Text(L("修正所有无效规则后自动保存。关闭应用将丢弃未保存的修改。"))
                                 .font(.caption).foregroundStyle(.secondary)
                             if model.appRuleDraft.rules != nil {
-                                Button("放弃未保存修改") { model.discardAppRuleDraft() }
+                                Button(L("放弃未保存修改")) { model.discardAppRuleDraft() }
                             }
                         }
                         if model.appRulesForEditing.isEmpty {
-                            Text("暂无配置规则")
+                            Text(L("暂无配置规则"))
                                 .font(.callout)
                                 .foregroundStyle(.secondary)
                                 .frame(maxWidth: .infinity, minHeight: 60, alignment: .center)
@@ -163,8 +164,8 @@ struct AppAdaptationSettingsView: View {
                 model.customAppName.trimmingCharacters(in: .whitespacesAndNewlines)
             )
             let bundle = model.customBundleId.trimmingCharacters(in: .whitespacesAndNewlines)
-            if bundle.isEmpty { return "请输入 Bundle ID。" }
-            if bundle.count > 255 || bundle.utf8.count > 1_020 { return "Bundle ID 过长，请缩短。" }
+            if bundle.isEmpty { return L("请输入 Bundle ID。") }
+            if bundle.count > 255 || bundle.utf8.count > 1_020 { return L("Bundle ID 过长，请缩短。") }
             return nil
         } catch {
             return error.localizedDescription
@@ -174,17 +175,17 @@ struct AppAdaptationSettingsView: View {
     private func ruleRow(_ rule: AppAdaptationRule) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 12) {
-                Toggle("启用规则：\(rule.appName)", isOn: Binding(
+                Toggle(L("启用规则：\(rule.appName)"), isOn: Binding(
                     get: { rule.isEnabled },
                     set: { value in var updated = rule; updated.isEnabled = value; model.updateAppRule(updated) }
                 ))
                 .labelsHidden()
                 .toggleStyle(.switch)
                 VStack(alignment: .leading, spacing: 2) {
-                    TextField("应用名称", text: Binding(
+                    TextField(L("应用名称"), text: Binding(
                         get: { rule.appName },
                         set: { value in var updated = rule; updated.appName = value; model.updateAppRule(updated) }
-                    )).accessibilityLabel("应用名称")
+                    )).accessibilityLabel(L("应用名称"))
                     TextField("Bundle ID", text: Binding(
                         get: { rule.bundleIdentifier },
                         set: { value in var updated = rule; updated.bundleIdentifier = value; model.updateAppRule(updated) }
@@ -195,24 +196,24 @@ struct AppAdaptationSettingsView: View {
                     Image(systemName: "trash").foregroundStyle(.red)
                 }
                 .buttonStyle(.borderless)
-                .help("删除规则")
-                .accessibilityLabel("删除规则：\(rule.appName)")
+                .help(L("删除规则"))
+                .accessibilityLabel(L("删除规则：\(rule.appName)"))
             }
             HStack {
-                Picker("显示模式", selection: Binding(
+                Picker(L("显示模式"), selection: Binding(
                     get: { rule.mode },
                     set: { value in var updated = rule; updated.mode = value; model.updateAppRule(updated) }
                 )) {
-                    Text("网页").tag(DisplayMode.web)
-                    Text("文字").tag(DisplayMode.text)
-                    Text("图像").tag(DisplayMode.image)
-                    Text("动态").tag(DisplayMode.active)
-                }.accessibilityLabel("\(rule.appName) 的显示模式")
-                Stepper("对比度 \(rule.threshold)", value: Binding(
+                    Text(L("网页")).tag(DisplayMode.web)
+                    Text(L("文字")).tag(DisplayMode.text)
+                    Text(L("图像")).tag(DisplayMode.image)
+                    Text(L("动态")).tag(DisplayMode.active)
+                }.accessibilityLabel(L("\(rule.appName) 的显示模式"))
+                Stepper(L("对比度 \(rule.threshold)"), value: Binding(
                     get: { rule.threshold },
                     set: { value in var updated = rule; updated.threshold = value; model.updateAppRule(updated) }
                 ), in: 1...9)
-                    .accessibilityLabel("\(rule.appName) 的对比度")
+                    .accessibilityLabel(L("\(rule.appName) 的对比度"))
                     .fixedSize()
             }
         }
@@ -232,7 +233,7 @@ struct AppAdaptationSettingsView: View {
 
         // Check duplicate
         if model.appRulesForEditing.contains(where: { $0.bundleIdentifier == bid }) {
-            model.errorMessage = "已存在该应用程序的匹配规则。"
+            model.errorMessage = L("已存在该应用程序的匹配规则。")
             return
         }
 

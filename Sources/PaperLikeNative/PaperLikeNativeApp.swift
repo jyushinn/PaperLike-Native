@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import SwiftUI
 import PaperLikeNativeUI
 
@@ -29,6 +30,15 @@ private struct MenuBarStatusLabel: View {
     }
 }
 
+private struct SettingsCommand: View {
+    @ObservedObject var model: AppModel
+
+    var body: some View {
+        Button(L("设置…")) { model.showSettings() }
+            .keyboardShortcut(",", modifiers: .command)
+    }
+}
+
 @main
 struct PaperLikeNativeApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
@@ -42,8 +52,7 @@ struct PaperLikeNativeApp: App {
         .menuBarExtraStyle(.window)
         .commands {
             CommandGroup(replacing: .appSettings) {
-                Button("设置…") { appDelegate.model.showSettings() }
-                    .keyboardShortcut(",", modifiers: .command)
+                SettingsCommand(model: appDelegate.model)
             }
         }
     }

@@ -7,8 +7,8 @@ func nativeInterfaceContractTests() -> [TestCase] {
             let panel = try source("QuickPanelView.swift")
             let configuration = try source("ConfigurationSettingsView.swift")
             try expect(settings.contains(".accessibilityElement(children: .contain)"), "group controls remain independently discoverable")
-            try expect(panel.contains(".accessibilityLabel(\"打开设置\")") && panel.contains(".accessibilityLabel(\"退出 PaperLike Native\")"), "icon-only buttons have action names")
-            try expect(configuration.contains("Button(\"替换配置\", role: .destructive)") && configuration.contains(".keyboardShortcut(.cancelAction)"), "replacement is explicit and Escape can cancel")
+            try expect(panel.contains(".accessibilityLabel(L(\"打开设置\"))") && panel.contains(".accessibilityLabel(L(\"退出 PaperLike Native\"))"), "icon-only buttons have action names")
+            try expect(configuration.contains("Button(L(\"替换配置\"), role: .destructive)") && configuration.contains(".keyboardShortcut(.cancelAction)"), "replacement is explicit and Escape can cancel")
         },
         TestCase("NativeInterfaceContract.deliversCalendarNotificationsOnMainQueue") {
             let model = try source("AppModel.swift")
@@ -37,7 +37,7 @@ func nativeInterfaceContractTests() -> [TestCase] {
                     && settings.contains("SettingsWindowLayout.previewSize")
                     && settings.contains("SettingsWindowLayout.minimumSize")
                     && !settings.contains(".frame(width: SettingsWindowLayout.sidebarWidth)")
-                    && settings.contains("case .automation, .configurations: \"场景\"")
+                    && settings.contains("case .automation, .configurations: L(\"场景\")")
                     && model.contains("SettingsWindowLayout.initialSize")
                     && model.contains("SettingsWindowLayout.minimumSize"),
                 "settings window and preview share sizing constraints"
@@ -64,16 +64,16 @@ func nativeInterfaceContractTests() -> [TestCase] {
         TestCase("NativeInterfaceContract.previewsQuickPanelWithTouch") {
             let quickPanel = try source("QuickPanelView.swift")
             try expect(quickPanel.contains("preview(touch: true)"), "canvas exposes a touch-enabled quick panel preview")
-            try expect(quickPanel.contains("previewDisplayName(\"含触控\")"), "touch preview is named in the canvas selector")
+            try expect(quickPanel.contains("previewDisplayName(L(\"含触控\"))"), "touch preview is named in the canvas selector")
         },
         TestCase("NativeInterfaceContract.previewsTouchAccessibilityRequired") {
             let quickPanel = try source("QuickPanelView.swift")
             try expect(quickPanel.contains("preview(needsAccessibility: true)"), "canvas exposes the authorization-required state")
-            try expect(quickPanel.contains("previewDisplayName(\"需辅助功能授权\")"), "authorization preview is named in the canvas selector")
+            try expect(quickPanel.contains("previewDisplayName(L(\"需辅助功能授权\"))"), "authorization preview is named in the canvas selector")
         },
         TestCase("NativeInterfaceContract.spreadsTouchControlsAcrossPanelWidth") {
             let quickPanel = try source("QuickPanelView.swift")
-            guard let touchStart = quickPanel.range(of: "panelSection(\"触控\")"),
+            guard let touchStart = quickPanel.range(of: "panelSection(L(\"触控\"))"),
                   let helperStart = quickPanel.range(of: "private func panelSection", range: touchStart.upperBound..<quickPanel.endIndex) else {
                 throw TestFailure(description: "touch panel section exists")
             }
@@ -86,7 +86,7 @@ func nativeInterfaceContractTests() -> [TestCase] {
             let settings = try source("SettingsView.swift")
             let appModel = try source("AppModel.swift")
             try expect(
-                !settings.contains(".navigationTitle(\"设置\")")
+                !settings.contains(".navigationTitle(L(\"设置\"))")
                     && appModel.contains(".fullSizeContentView")
                     && appModel.contains("window.titleVisibility = .hidden")
                     && appModel.contains("window.titlebarAppearsTransparent = true"),
@@ -133,7 +133,7 @@ func nativeInterfaceContractTests() -> [TestCase] {
             let settings = try source("SettingsView.swift")
             let automation = try source("AutomationSettingsView.swift")
             let diagnostics = try source("DiagnosticsView.swift")
-            try expect(settings.contains("case .automation, .configurations: \"场景\""), "sidebar calls the combined destination scenes")
+            try expect(settings.contains("case .automation, .configurations: L(\"场景\")"), "sidebar calls the combined destination scenes")
             try expect(settings.contains("case .automation, .configurations:"), "legacy scene destination routes into automation")
             try expect(automation.contains("ConfigurationSettingsView(model: model)"), "scene and backup groups appear under automation")
             try expect(settings.contains("DiagnosticsView(model: model)"), "connection and records appear under about")
@@ -143,13 +143,13 @@ func nativeInterfaceContractTests() -> [TestCase] {
             }
             let sidebar = settings[sidebarStart.lowerBound..<sidebarEnd.lowerBound]
             try expect(!sidebar.contains(".diagnostics") && !sidebar.contains(".configurations"), "connection and records are removed from sidebar")
-            try expect(diagnostics.contains("SettingsGroupBox(\"连接\")") && diagnostics.contains("最近执行记录"), "diagnostics retains connection and records")
+            try expect(diagnostics.contains("SettingsGroupBox(L(\"连接\"))") && diagnostics.contains("最近执行记录"), "diagnostics retains connection and records")
         },
         TestCase("NativeInterfaceContract.refreshesAccessibilityOnActivationAndReportsAutomationErrors") {
             let settings = try source("SettingsView.swift")
             let model = try source("AppModel.swift")
             try expect(settings.contains("NSApplication.didBecomeActiveNotification"), "touch permission refreshes when returning from System Settings")
-            try expect(model.contains("errorMessage = \"无法修改系统辅助功能设置"), "system accessibility toggle reports permission or scripting failure")
+            try expect(model.contains("errorMessage = L(\"无法修改系统辅助功能设置"), "system accessibility toggle reports permission or scripting failure")
         },
         TestCase("NativeInterfaceContract.alwaysShowsTwoSettingsColumns") {
             let settings = try source("SettingsView.swift")
@@ -192,7 +192,7 @@ func nativeInterfaceContractTests() -> [TestCase] {
             try expect(settings.contains("case .touch, .experiments:"), "legacy touch route opens the lab")
             try expect(experiments.contains("TouchSettingsView(model: model)"), "touch controls are embedded in the lab")
             try expect(touch.contains("HStack(spacing: 8)"), "touch action buttons share a horizontal row")
-            try expect(touch.contains("Button(\"使用自动映射\")") && touch.contains("Button(\"四角校准\")"), "calibration actions remain together")
+            try expect(touch.contains("Button(L(\"使用自动映射\"))") && touch.contains("Button(L(\"四角校准\"))"), "calibration actions remain together")
         },
         TestCase("NativeInterfaceContract.exposesNativeTouchControls") {
             let experiments = try source("TouchSettingsView.swift")
@@ -211,7 +211,7 @@ func nativeInterfaceContractTests() -> [TestCase] {
         TestCase("NativeInterfaceContract.linksTouchModule") {
             let package = try repositorySource("Package.swift")
             try expect(
-                package.contains("dependencies: [\"PaperlikeCore\", \"SerialTransport\", \"PaperlikeTouch\"]"),
+                package.contains("dependencies: [\"PaperlikeCore\", \"SerialTransport\", \"PaperlikeTouch\", \"PaperlikeLocalization\"]"),
                 "PaperLikeNativeUI depends on PaperlikeTouch"
             )
         },
@@ -286,9 +286,9 @@ func nativeInterfaceContractTests() -> [TestCase] {
             let plist = try repositorySource("Resources/Info.plist")
             let settings = try source("SettingsView.swift")
             try expect(
-                plist.contains("<string>1.0.0</string>")
-                    && plist.contains("<string>17</string>"),
-                "bundle metadata is version 1.0.0 build 17"
+                plist.contains("<string>1.0.1</string>")
+                    && plist.contains("<string>18</string>"),
+                "bundle metadata is version 1.0.1 build 18"
             )
             try expect(
                 plist.contains("<string>org.paperlike.native</string>"),

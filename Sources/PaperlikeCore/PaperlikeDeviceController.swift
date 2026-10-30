@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import Foundation
 import PaperlikeProtocol
 import SerialTransport
@@ -15,14 +16,14 @@ public enum PaperlikeDeviceError: Error, Equatable, Sendable, LocalizedError {
 
     public var errorDescription: String? {
         switch self {
-        case .notConnected, .connectionLost: "控制连接已断开，请重新连接。"
-        case .busy: "设备正在执行其他指令，请稍候。"
-        case .timedOut: "设备未在规定时间内返回确认。"
-        case .cancelled: "操作已取消或连接已改变。"
-        case let .unsupported(identifier): "设备型号不支持：\(identifier)。"
-        case let .unsupportedFeature(name): "当前设备不支持\(name)。"
-        case .invalidValue: "设备参数超出支持范围。"
-        case .verificationFailed: "设备读回值与目标不一致。"
+        case .notConnected, .connectionLost: L("控制连接已断开，请重新连接。")
+        case .busy: L("设备正在执行其他指令，请稍候。")
+        case .timedOut: L("设备未在规定时间内返回确认。")
+        case .cancelled: L("操作已取消或连接已改变。")
+        case let .unsupported(identifier): L("设备型号不支持：\(identifier)。")
+        case let .unsupportedFeature(name): L("当前设备不支持\(name)。")
+        case .invalidValue: L("设备参数超出支持范围。")
+        case .verificationFailed: L("设备读回值与目标不一致。")
         }
     }
 }
@@ -108,7 +109,7 @@ public actor PaperlikeDeviceController {
                 familyIdentifier: family
             ) else {
                 let identifier = String(
-                    format: "MCU %02X / 型号 %02X",
+                    format: L("MCU %02X / 型号 %02X"),
                     mcu,
                     family
                 )
@@ -303,7 +304,7 @@ public actor PaperlikeDeviceController {
             throw PaperlikeDeviceError.notConnected
         }
         guard deviceState.profile.hasFrontLight else {
-            throw PaperlikeDeviceError.unsupportedFeature(name: "前光")
+            throw PaperlikeDeviceError.unsupportedFeature(name: L("前光"))
         }
     }
 
@@ -551,7 +552,7 @@ public actor PaperlikeDeviceController {
         }
         await disconnectTransport()
         if case .connected = state {
-            publish(.failed(message: "与显示器的连接已中断。"))
+            publish(.failed(message: L("与显示器的连接已中断。")))
         }
     }
 
@@ -589,11 +590,11 @@ public actor PaperlikeDeviceController {
     private static func message(for error: Error) -> String {
         switch error {
         case PaperlikeDeviceError.timedOut:
-            "设备响应超时，请重新连接。"
+            L("设备响应超时，请重新连接。")
         case PaperlikeDeviceError.connectionLost:
-            "与显示器的连接已中断。"
+            L("与显示器的连接已中断。")
         default:
-            "无法连接显示器。"
+            L("无法连接显示器。")
         }
     }
 }

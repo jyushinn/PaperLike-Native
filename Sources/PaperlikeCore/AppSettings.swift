@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import Foundation
 
 public struct HotKeyDefinition: Codable, Equatable, Hashable, Sendable {
@@ -140,7 +141,7 @@ public enum SettingsValidation {
     public static func encodeSection<T: Encodable>(_ value: T) throws -> Data {
         let data = try JSONEncoder().encode(value)
         guard data.count <= maximumSectionBytes else {
-            throw SettingsValidationError.invalid("配置内容过多，请减少规则或预设后重试。")
+            throw SettingsValidationError.invalid(L("配置内容过多，请减少规则或预设后重试。"))
         }
         return data
     }
@@ -152,36 +153,36 @@ public enum SettingsValidation {
     public static func validateName(_ name: String) throws {
         guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               name.count <= maximumNameLength else {
-            throw SettingsValidationError.invalid("名称须为 1–120 个字符。")
+            throw SettingsValidationError.invalid(L("名称须为 1–120 个字符。"))
         }
         guard name.utf8.count <= maximumNameUTF8Bytes else {
-            throw SettingsValidationError.invalid("名称包含过多组合字符，请缩短名称。")
+            throw SettingsValidationError.invalid(L("名称包含过多组合字符，请缩短名称。"))
         }
     }
 
     public static func appRuleIssues(_ rules: [AppAdaptationRule]) -> [String] {
         var issues: [String] = []
-        if rules.count > maximumRules { issues.append("应用规则还需删除 \(rules.count - maximumRules) 条（最多 200 条）。") }
+        if rules.count > maximumRules { issues.append(L("应用规则还需删除 \(rules.count - maximumRules) 条（最多 200 条）。")) }
         let duplicateIDs = rules.count - Set(rules.map(\.id)).count
         let duplicateBundles = rules.count - Set(rules.map(\.bundleIdentifier)).count
-        if duplicateIDs > 0 || duplicateBundles > 0 { issues.append("存在重复应用规则，请删除重复项。") }
+        if duplicateIDs > 0 || duplicateBundles > 0 { issues.append(L("存在重复应用规则，请删除重复项。")) }
         let invalidNames = rules.filter { (try? validateName($0.appName)) == nil }.count
-        if invalidNames > 0 { issues.append("还有 \(invalidNames) 条应用名称无效，请缩短名称或补齐空名称。") }
+        if invalidNames > 0 { issues.append(L("还有 \(invalidNames) 条应用名称无效，请缩短名称或补齐空名称。")) }
         let invalidValues = rules.filter {
             $0.bundleIdentifier.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || $0.bundleIdentifier.count > 255 || $0.bundleIdentifier.utf8.count > 1_020 || !(1...9).contains($0.threshold)
         }.count
-        if invalidValues > 0 { issues.append("还有 \(invalidValues) 条规则的 Bundle ID 或对比度无效（请缩短或修正 Bundle ID，对比度须为 1–9）。") }
+        if invalidValues > 0 { issues.append(L("还有 \(invalidValues) 条规则的 Bundle ID 或对比度无效（请缩短或修正 Bundle ID，对比度须为 1–9）。")) }
         return issues
     }
 
     public static func automationRuleIssues(_ rules: [LightingScheduleRule]) -> [String] {
         var issues: [String] = []
-        if rules.count > maximumRules { issues.append("前光规则还需删除 \(rules.count - maximumRules) 条（最多 200 条）。") }
-        if Set(rules.map(\.id)).count != rules.count { issues.append("存在重复前光规则，请删除重复项。") }
+        if rules.count > maximumRules { issues.append(L("前光规则还需删除 \(rules.count - maximumRules) 条（最多 200 条）。")) }
+        if Set(rules.map(\.id)).count != rules.count { issues.append(L("存在重复前光规则，请删除重复项。")) }
         let invalidNames = rules.filter { (try? validateName($0.name)) == nil }.count
-        if invalidNames > 0 { issues.append("还有 \(invalidNames) 条前光名称无效，请缩短名称或补齐空名称。") }
+        if invalidNames > 0 { issues.append(L("还有 \(invalidNames) 条前光名称无效，请缩短名称或补齐空名称。")) }
         let missingWeekdays = rules.filter { $0.weekdays.isEmpty }.count
-        if missingWeekdays > 0 { issues.append("还有 \(missingWeekdays) 条时间规则须至少选择一天。") }
+        if missingWeekdays > 0 { issues.append(L("还有 \(missingWeekdays) 条时间规则须至少选择一天。")) }
         return issues
     }
 
@@ -206,7 +207,7 @@ extension AppSettings {
               contrastSlope.isFinite && (1...20).contains(contrastSlope),
               Set(keys).count == keys.count,
               keys.allSatisfy({ $0.keyCode <= 127 && $0.modifiers != 0 && $0.modifiers & ~UInt32(0x1B00) == 0 }) else {
-            throw SettingsValidationError.invalid("设置包含无效参数或重复快捷键。")
+            throw SettingsValidationError.invalid(L("设置包含无效参数或重复快捷键。"))
         }
         try SettingsValidation.validateAppRules(rules)
     }

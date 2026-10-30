@@ -196,7 +196,7 @@ func nativeSettingsReliabilityTests() -> [TestCase] {
             let configuration = try source("ConfigurationSettingsView.swift")
             try expect(configuration.contains("恢复自动控制"), "resume label must describe automatic controls")
             try expect(configuration.contains("impactSummary"), "import confirmation must compare previous and incoming configuration")
-            try expect(try source("QuickPanelView.swift").contains("Button(\"继续触控\""), "paused touch should resume in place")
+            try expect(try source("QuickPanelView.swift").contains("Button(L(\"继续触控\")"), "paused touch should resume in place")
         },
         TestCase("NativeSettings.loginRegistrationRequiresUserChoice") {
             let model = try source("AppModel.swift")

@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import CoreGraphics
 import Foundation
 
@@ -97,16 +98,16 @@ public struct TouchDiagnosticsSnapshot: Equatable, Sendable {
     public var lastAction: String
 
     public init(
-        gestureState: String = "空闲",
+        gestureState: String = L("空闲"),
         contactCount: Int = 0,
-        contactsDescription: String = "无触控输入",
+        contactsDescription: String = L("无触控输入"),
         twoFingerDistance: CGFloat = 0,
         centroid: CGPoint = .zero,
         velocity: CGPoint = .zero,
         speed: CGFloat = 0,
         isInertiaActive: Bool = false,
         inertiaVelocity: CGPoint = .zero,
-        lastAction: String = "等待手势"
+        lastAction: String = L("等待手势")
     ) {
         self.gestureState = gestureState
         self.contactCount = contactCount

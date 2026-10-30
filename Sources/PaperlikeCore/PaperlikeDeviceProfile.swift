@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 public enum PaperlikePanelKind: Equatable, Sendable {
     case color
     case monochrome
@@ -5,9 +6,9 @@ public enum PaperlikePanelKind: Equatable, Sendable {
     public var displayText: String {
         switch self {
         case .color:
-            "彩色"
+            L("彩色")
         case .monochrome:
-            "黑白"
+            L("黑白")
         }
     }
 }
@@ -43,18 +44,18 @@ public struct PaperlikeDeviceProfile: Equatable, Sendable {
     }
 
     public var displayName: String {
-        let panel = panelKind == .color ? "彩色版" : "黑白版"
-        let light = hasFrontLight ? "有前光" : "无前光"
-        return "PaperLike 13.3K \(panel)（\(light)）"
+        let panel = panelKind == .color ? L("彩色版") : L("黑白版")
+        let light = hasFrontLight ? L("有前光") : L("无前光")
+        return L("PaperLike 13.3K \(panel)（\(light)）")
     }
 
     public var frontLightDisplayText: String {
-        hasFrontLight ? "支持" : "不支持"
+        hasFrontLight ? L("支持") : L("不支持")
     }
 
     public var verificationText: String {
         mcuVersion == 0x30 && familyIdentifier == 0x01
-            ? "已在此识别码的彩色版实机验证"
-            : "协议兼容，未实机验证"
+            ? L("已在此识别码的彩色版实机验证")
+            : L("协议兼容，未实机验证")
     }
 }

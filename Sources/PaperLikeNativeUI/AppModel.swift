@@ -1,3 +1,4 @@
+import PaperlikeLocalization
 import AppKit
 import UniformTypeIdentifiers
 import Combine
@@ -48,40 +49,40 @@ public struct TouchUIState: Equatable, Sendable {
     public var statusText: String {
         switch status {
         case .stopped:
-            "已暂停"
+            L("已暂停")
         case .disabled:
-            "未启用"
+            L("未启用")
         case .accessibilityRequired:
-            "需要辅助功能权限"
+            L("需要辅助功能权限")
         case .deviceUnavailable:
-            "当前不支持"
+            L("当前不支持")
         case .displaySelectionRequired:
-            "请选择目标显示器"
+            L("请选择目标显示器")
         case .ready:
-            "正在映射"
+            L("正在映射")
         case .testing:
-            "正在测试"
+            L("正在测试")
         case .error:
-            "触控出错"
+            L("触控出错")
         }
     }
 
     public var detailText: String {
         switch status {
         case .stopped:
-            "触控输出已停止，可在高级实验室继续。"
+            L("触控输出已停止，可在高级实验室继续。")
         case .disabled:
-            "触控已关闭；启用后会记住你的选择。"
+            L("触控已关闭；启用后会记住你的选择。")
         case .accessibilityRequired:
-            "仅点击权限按钮时才会显示 macOS 提示。"
+            L("仅点击权限按钮时才会显示 macOS 提示。")
         case .deviceUnavailable:
-            "仅支持 PaperLike 13.3K 彩色触控型号；串口控制不受影响。"
+            L("仅支持 PaperLike 13.3K 彩色触控型号；串口控制不受影响。")
         case .displaySelectionRequired:
-            "未能唯一识别 PaperLike 画面，请手动选择。"
+            L("未能唯一识别 PaperLike 画面，请手动选择。")
         case .ready:
-            "单指移动、点击与拖动；双指滚动或轻点右键。"
+            L("单指移动、点击与拖动；双指滚动或轻点右键。")
         case .testing:
-            "只显示触点数据，绝不发布鼠标事件。"
+            L("只显示触点数据，绝不发布鼠标事件。")
         case let .error(message):
             message
         }
@@ -90,6 +91,14 @@ public struct TouchUIState: Equatable, Sendable {
 
 @MainActor
 public final class AppModel: ObservableObject {
+    @Published public var language: AppLanguage = .current {
+        willSet {
+            UserDefaults.standard.set(newValue.rawValue, forKey: AppLanguage.preferenceKey)
+        }
+        didSet {
+            settingsWindow?.title = L("设置")
+        }
+    }
     @Published private(set) var connectionState: ConnectionState = .disconnected
     @Published private(set) var isCommandRunning = false
     @Published var errorMessage: String?
@@ -271,12 +280,12 @@ public final class AppModel: ObservableObject {
         do {
             try configureHotKeys(using: loadedSettings)
         } catch {
-            errorMessage = "快捷键冲突，未启用冲突组合。"
+            errorMessage = L("快捷键冲突，未启用冲突组合。")
         }
         if settingsStore.recoveredCorruptData || automationSettingsStore.recoveredCorruptData || touchMapping.recoveredCorruptSettings
             || presetRecoveryNeeded {
             configurationRecoveryNeeded = true
-            errorMessage = "部分设置无法读取，原始数据已保留。请检查设置或从备份恢复。"
+            errorMessage = L("部分设置无法读取，原始数据已保留。请检查设置或从备份恢复。")
         }
         systemReduceTransparency = NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency
         systemIncreaseContrast = NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast
@@ -352,19 +361,22 @@ public final class AppModel: ObservableObject {
 
     var touchContactSummary: String {
         guard let frame = touchLatestFrame else {
-            return "等待触点…"
+            return L("等待触点…")
         }
         guard !frame.contacts.isEmpty else {
-            return "当前 0 个触点"
+            return L("当前 0 个触点")
         }
         let coordinates = frame.contacts.prefix(3).map { contact in
             "#\(contact.id) (\(contact.x), \(contact.y))"
         }
-        return "\(frame.contacts.count) 个触点：" + coordinates.joined(separator: "  ")
+        return L("\(frame.contacts.count) 个触点：") + coordinates.joined(separator: "  ")
     }
 
     public var connectionPresentation: ConnectionPresentation {
-        ConnectionPresentation(state: connectionState)
+        if case let .connected(_, state) = connectionState {
+            return ConnectionPresentation(state: .connected(name: state.profile.displayName, state: state))
+        }
+        return ConnectionPresentation(state: connectionState)
     }
 
     var connectionTitle: String {
@@ -376,7 +388,7 @@ public final class AppModel: ObservableObject {
     var connectionDetail: String {
         let base = connectionPresentation.detail(serialPath: activeSerialPath)
         if let hz = paperlikeRefreshRate {
-            return base + "  |  系统刷新率: \(Int(round(hz))) Hz"
+            return base + L("  |  系统刷新率: \(Int(round(hz))) Hz")
         }
         return base
     }
@@ -439,7 +451,7 @@ public final class AppModel: ObservableObject {
         guard let state = deviceState, frontLightAvailable,
               !name.isEmpty, name.count <= 120,
               !frontLightPresets.contains(where: { $0.name.localizedCaseInsensitiveCompare(name) == .orderedSame }) else {
-            errorMessage = "请连接显示器，输入名称，并避免使用重复名称。"
+            errorMessage = L("请连接显示器，输入名称，并避免使用重复名称。")
             return
         }
         let preset = FrontLightPreset(
@@ -454,9 +466,9 @@ public final class AppModel: ObservableObject {
             let updated = frontLightPresets + [preset]
             try FrontLightPresetStore.save(updated)
             frontLightPresets = updated
-            recordOperation("前光预设", "已保存：\(name)")
+            recordOperation(L("前光预设"), L("已保存：\(name)"))
         } catch {
-            errorMessage = "保存前光预设失败：\(error.localizedDescription)"
+            errorMessage = L("保存前光预设失败：\(error.localizedDescription)")
         }
     }
 
@@ -466,7 +478,7 @@ public final class AppModel: ObservableObject {
             try FrontLightPresetStore.save(updated)
             frontLightPresets = updated
         } catch {
-            errorMessage = "删除前光预设失败：\(error.localizedDescription)"
+            errorMessage = L("删除前光预设失败：\(error.localizedDescription)")
         }
     }
 
@@ -562,12 +574,12 @@ public final class AppModel: ObservableObject {
             ditheringEnabled = enabled
             ditheringAvailable = true
             driverResultMessage = enabled
-                ? "已开启画面抖动。"
-                : "已关闭画面抖动。"
+                ? L("已开启画面抖动。")
+                : L("已关闭画面抖动。")
         } catch {
             reloadDitheringState()
-            driverResultMessage = "无法读取或修改这台显示器的抖动设置。"
-            errorMessage = "无法修改抖动设置。"
+            driverResultMessage = L("无法读取或修改这台显示器的抖动设置。")
+            errorMessage = L("无法修改抖动设置。")
         }
     }
 
@@ -578,7 +590,7 @@ public final class AppModel: ObservableObject {
             enhancementAvailable = true
         } catch {
             reloadEnhancementState()
-            errorMessage = "当前 macOS 显示驱动不支持显示增强。"
+            errorMessage = L("当前 macOS 显示驱动不支持显示增强。")
         }
     }
 
@@ -595,8 +607,8 @@ public final class AppModel: ObservableObject {
             )
             driverResultMessage = nil
         } catch {
-            driverResultMessage = "画面曲线未应用，可重新连接后重试。"
-            if reportFailure { errorMessage = "画面曲线未应用：\(error.localizedDescription)" }
+            driverResultMessage = L("画面曲线未应用，可重新连接后重试。")
+            if reportFailure { errorMessage = L("画面曲线未应用：\(error.localizedDescription)") }
         }
     }
 
@@ -680,10 +692,10 @@ public final class AppModel: ObservableObject {
             var failure = error.localizedDescription
             if hotKeysApplied {
                 do { try configureHotKeys(using: savedSettings) }
-                catch { failure += "；快捷键恢复未完成：\(error.localizedDescription)" }
+                catch { failure += L("；快捷键恢复未完成：\(error.localizedDescription)") }
             }
             synchronizeCalibrationDrafts()
-            errorMessage = "设置未保存：\(failure)"
+            errorMessage = L("设置未保存：\(failure)")
             return false
         }
     }
@@ -697,7 +709,7 @@ public final class AppModel: ObservableObject {
             return true
         } catch {
             automationSettings = savedAutomationSettings
-            errorMessage = "自动化设置未保存：\(error.localizedDescription)"
+            errorMessage = L("自动化设置未保存：\(error.localizedDescription)")
             return false
         }
     }
@@ -723,7 +735,7 @@ public final class AppModel: ObservableObject {
         draft.update(rules, validate: { _ in try candidate.validate() }, save: { _ in
             self.settings = candidate
             guard self.saveSettings() else {
-                throw SettingsValidationError.invalid(self.errorMessage ?? "设置未保存。")
+                throw SettingsValidationError.invalid(self.errorMessage ?? L("设置未保存。"))
             }
         })
         appRuleDraft = draft
@@ -736,7 +748,7 @@ public final class AppModel: ObservableObject {
         draft.update(rules, validate: { _ in try candidate.validate() }, save: { _ in
             self.automationSettings = candidate
             guard self.saveAutomationSettings() else {
-                throw SettingsValidationError.invalid(self.errorMessage ?? "自动化设置未保存。")
+                throw SettingsValidationError.invalid(self.errorMessage ?? L("自动化设置未保存。"))
             }
         })
         automationRuleDraft = draft
@@ -760,7 +772,7 @@ public final class AppModel: ObservableObject {
     func addAutomationRule() {
         let current = deviceState
         updateAutomationRule(LightingScheduleRule(
-            name: "新时间段",
+            name: L("新时间段"),
             weekdays: Set(Weekday.allCases),
             start: MinuteOfDay(hour: 9, minute: 0),
             end: MinuteOfDay(hour: 18, minute: 0),
@@ -783,7 +795,7 @@ public final class AppModel: ObservableObject {
 
     func duplicateAutomationRule(id: UUID) {
         guard let rule = automationRulesForEditing.first(where: { $0.id == id }) else { return }
-        let suffix = " 副本"
+        let suffix = L(" 副本")
         var prefix = String(rule.name.prefix(SettingsValidation.maximumNameLength - suffix.count))
         while prefix.utf8.count + suffix.utf8.count > SettingsValidation.maximumNameUTF8Bytes {
             prefix.removeLast()
@@ -831,12 +843,12 @@ public final class AppModel: ObservableObject {
                 let result = try await controller.syncRealTimeClock()
                 switch result {
                 case .acknowledged:
-                    rtcResultMessage = "设备已确认时间同步。"
+                    rtcResultMessage = L("设备已确认时间同步。")
                 case .sentWithoutAcknowledgement:
-                    rtcResultMessage = "同步命令已发送；当前固件没有返回确认。"
+                    rtcResultMessage = L("同步命令已发送；当前固件没有返回确认。")
                 }
             } catch {
-                errorMessage = "设备时间同步失败。"
+                errorMessage = L("设备时间同步失败。")
             }
             setGeneralCommandRunning(false)
         }
@@ -864,10 +876,10 @@ public final class AppModel: ObservableObject {
         do {
             try displayDriver.restoreDithering()
             reloadDitheringState()
-            driverResultMessage = "已恢复打开应用前的抖动设置。"
+            driverResultMessage = L("已恢复打开应用前的抖动设置。")
         } catch {
-            driverResultMessage = "恢复失败，请重新连接显示器后再试。"
-            errorMessage = "无法恢复抖动设置。"
+            driverResultMessage = L("恢复失败，请重新连接显示器后再试。")
+            errorMessage = L("无法恢复抖动设置。")
         }
     }
 
@@ -880,9 +892,9 @@ public final class AppModel: ObservableObject {
             settings.saturationValue = 0.5
             settings.isGrayscaleEnabled = false
             saveSettings()
-            driverResultMessage = "已恢复打开应用前的画面曲线。"
+            driverResultMessage = L("已恢复打开应用前的画面曲线。")
         } catch {
-            driverResultMessage = "恢复失败，原值备份仍保留；请连接原显示器后重试。"
+            driverResultMessage = L("恢复失败，原值备份仍保留；请连接原显示器后重试。")
             errorMessage = driverResultMessage
         }
     }
@@ -895,9 +907,9 @@ public final class AppModel: ObservableObject {
 
     var touchCalibrationDescription: String {
         switch touchMapping.calibrationSource {
-        case .manual: "已保存的校准"
-        case .automaticHID: "自动读取设备坐标范围"
-        case .automaticFallback: "自动使用此型号默认范围"
+        case .manual: L("已保存的校准")
+        case .automaticHID: L("自动读取设备坐标范围")
+        case .automaticFallback: L("自动使用此型号默认范围")
         }
     }
 
@@ -932,7 +944,7 @@ public final class AppModel: ObservableObject {
         guard !testing || !allControlsPaused else { return }
         if testing {
             guard touchIsTouchDeviceConnected else {
-                errorMessage = "未检测到 PaperLike 13.3K 彩色触控 HID 设备。"
+                errorMessage = L("未检测到 PaperLike 13.3K 彩色触控 HID 设备。")
                 return
             }
             touchMapping.start()
@@ -1008,7 +1020,7 @@ public final class AppModel: ObservableObject {
             try loginItem.setEnabled(enabled)
             refreshLoginItemStatus()
         } catch {
-            errorMessage = "无法修改登录启动设置：\(error.localizedDescription)"
+            errorMessage = L("无法修改登录启动设置：\(error.localizedDescription)")
             refreshLoginItemStatus()
         }
     }
@@ -1050,7 +1062,7 @@ public final class AppModel: ObservableObject {
         }
         touchMapping.shutdown()
         do { try displayDriver.restore() }
-        catch { recordOperation("显示恢复", "恢复失败，原值备份仍保留", failed: true) }
+        catch { recordOperation(L("显示恢复"), L("恢复失败，原值备份仍保留"), failed: true) }
     }
 
     private func runCommand(
@@ -1068,21 +1080,21 @@ public final class AppModel: ObservableObject {
                 if verifyDisplay {
                     do {
                         if try await controller.verifyDisplayConfiguration() {
-                            recordOperation("手动操作", "设备已确认")
+                            recordOperation(L("手动操作"), L("设备已确认"))
                         } else {
-                            errorMessage = "设备读回值与目标不一致，界面已更新为实际值。"
-                            recordOperation("手动操作", "读回与目标不一致", failed: true)
+                            errorMessage = L("设备读回值与目标不一致，界面已更新为实际值。")
+                            recordOperation(L("手动操作"), L("读回与目标不一致"), failed: true)
                         }
                     } catch PaperlikeDeviceError.timedOut {
-                        recordOperation("手动操作", "指令已发送，未获得读回确认")
+                        recordOperation(L("手动操作"), L("指令已发送，未获得读回确认"))
                     }
                 } else {
-                    recordOperation("手动操作", "指令已发送，未读回")
+                    recordOperation(L("手动操作"), L("指令已发送，未读回"))
                 }
             } catch {
                 onFailure?()
-                errorMessage = "操作未完成，部分设置可能已生效：\(error.localizedDescription)"
-                recordOperation("手动操作", "执行未完成", failed: true)
+                errorMessage = L("操作未完成，部分设置可能已生效：\(error.localizedDescription)")
+                recordOperation(L("手动操作"), L("执行未完成"), failed: true)
             }
             setGeneralCommandRunning(false)
         }
@@ -1100,10 +1112,10 @@ public final class AppModel: ObservableObject {
             do {
                 try await action()
                 await lightingAutomation.noteManualOverride()
-                recordOperation("手动前光", "指令已发送，自动化暂停到下个时段")
+                recordOperation(L("手动前光"), L("指令已发送，自动化暂停到下个时段"))
             } catch {
                 onFailure?()
-                errorMessage = "操作未完成，部分设置可能已生效。"
+                errorMessage = L("操作未完成，部分设置可能已生效。")
             }
             setGeneralCommandRunning(false)
         }
@@ -1165,7 +1177,7 @@ public final class AppModel: ObservableObject {
                 if !wasConnected {
                     reloadDitheringState()
                     reloadEnhancementState()
-                    recordOperation("控制连接", "已连接")
+                    recordOperation(L("控制连接"), L("已连接"))
                     if let app = NSWorkspace.shared.frontmostApplication { handleActiveApplicationChanged(app) }
                 }
             }
@@ -1177,7 +1189,7 @@ public final class AppModel: ObservableObject {
                 )
             }
             if case .failed = state {
-                recordOperation("控制连接", "连接中断，正在自动重试", failed: true)
+                recordOperation(L("控制连接"), L("连接中断，正在自动重试"), failed: true)
                 startConnectionLoop()
             }
         }
@@ -1186,9 +1198,9 @@ public final class AppModel: ObservableObject {
     private func observeAutomation() async {
         for await status in lightingAutomation.events {
             if status.isApplied && !automationStatus.isApplied {
-                recordOperation("前光自动化", "\(status.activeRule?.name ?? "规则")：\(lightingVerified ? "设备已确认" : "指令已发送，未确认")")
+                recordOperation(L("前光自动化"), "\(status.activeRule?.name ?? L("规则"))：\(lightingVerified ? L("设备已确认") : L("指令已发送，未确认"))")
             } else if let failure = status.failureMessage, failure != automationStatus.failureMessage {
-                recordOperation("前光自动化", failure, failed: true)
+                recordOperation(L("前光自动化"), failure, failed: true)
             }
             automationStatus = status
             if !status.isPaused { pauseDescription = nil }
@@ -1205,7 +1217,7 @@ public final class AppModel: ObservableObject {
                 applyCompletedLightingDraft(command)
             case let .failed(command):
                 rollbackLightingDraft(command.control)
-                errorMessage = "操作未完成，部分设置可能已生效。"
+                errorMessage = L("操作未完成，部分设置可能已生效。")
             case .ignored, .activityChanged:
                 break
             }
@@ -1294,6 +1306,11 @@ public final class AppModel: ObservableObject {
     }
 
     private func configureSystemObservers() {
+        NotificationCenter.default.publisher(for: NSLocale.currentLocaleDidChangeNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &cancellables)
+
         paperlikeRefreshRate = displayDriver.findPaperlikeRefreshRate()
         displayConnected = NSScreen.screens.contains { $0.localizedName.localizedCaseInsensitiveContains("paperlike") }
         NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
@@ -1349,7 +1366,7 @@ public final class AppModel: ObservableObject {
                 self.touchMapping.pause()
                 self.calibrationTask?.cancel()
                 do { try self.displayDriver.restoreDisplayCalibration() }
-                catch { self.recordOperation("睡眠前画面恢复", "恢复未完成，原值备份仍保留", failed: true) }
+                catch { self.recordOperation(L("睡眠前画面恢复"), L("恢复未完成，原值备份仍保留"), failed: true) }
                 self.configureAutoRefresh()
                 self.configureLightingAutomation(applyImmediately: false)
             }
@@ -1405,12 +1422,12 @@ public final class AppModel: ObservableObject {
                 try Task.checkCancellation()
                 self.lastAppliedApp = rule == nil ? nil : bundleID
                 if rule == nil { self.lastManualState = nil }
-                self.recordOperation("应用自适应", rule?.appName ?? "已恢复手动设置")
+                self.recordOperation(L("应用自适应"), rule?.appName ?? L("已恢复手动设置"))
             } catch is CancellationError {
                 // The latest foreground application owns the next operation.
             } catch {
                 guard !Task.isCancelled else { return }
-                self?.recordOperation("应用自适应", "未完成，未标记为已应用", failed: true)
+                self?.recordOperation(L("应用自适应"), L("未完成，未标记为已应用"), failed: true)
             }
         }
     }
@@ -1439,7 +1456,7 @@ public final class AppModel: ObservableObject {
                     try await self.controller.connect(path: path)
                     return
                 } catch PaperlikeDeviceError.unsupported {
-                    self.recordOperation("控制连接", "型号不支持，已停止自动重试", failed: true)
+                    self.recordOperation(L("控制连接"), L("型号不支持，已停止自动重试"), failed: true)
                     return
                 } catch {
                     if Task.isCancelled { return }
@@ -1477,7 +1494,7 @@ public final class AppModel: ObservableObject {
             await lightingAutomation.setSuspended(allControlsPaused || isSystemSleeping)
             if !allControlsPaused, let app = NSWorkspace.shared.frontmostApplication { handleActiveApplicationChanged(app) }
         }
-        recordOperation("自动控制", paused ? "已暂停，仍可手动调节" : "已恢复原来的启用项")
+        recordOperation(L("自动控制"), paused ? L("已暂停，仍可手动调节") : L("已恢复原来的启用项"))
     }
 
     func resumeImportedConfiguration() { setAllControlsPaused(false) }
@@ -1486,13 +1503,13 @@ public final class AppModel: ObservableObject {
         let end: Date
         if untilTomorrow {
             end = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: Date())) ?? Date().addingTimeInterval(86_400)
-            pauseDescription = "暂停到明天"
+            pauseDescription = L("暂停到明天")
         } else if let minutes {
             end = Date().addingTimeInterval(Double(minutes * 60))
-            pauseDescription = "暂停到 \(end.formatted(date: .omitted, time: .shortened))"
+            pauseDescription = L("暂停到 \(end.formatted(.dateTime.hour().minute().locale(AppLanguage.current.locale)))")
         } else {
             pauseAutomationUntilNextBoundary()
-            pauseDescription = "暂停到下个时段"
+            pauseDescription = L("暂停到下个时段")
             return
         }
         Task { await lightingAutomation.pause(until: end) }
@@ -1547,7 +1564,7 @@ public final class AppModel: ObservableObject {
             throw PaperlikeDeviceError.busy
         }
         guard frontLightAvailable else {
-            throw PaperlikeDeviceError.unsupportedFeature(name: "前光")
+            throw PaperlikeDeviceError.unsupportedFeature(name: L("前光"))
         }
         setGeneralCommandRunning(true)
         defer { setGeneralCommandRunning(false) }
@@ -1573,20 +1590,20 @@ public final class AppModel: ObservableObject {
             lightingVerified = true
         } catch PaperlikeDeviceError.timedOut {
             lightingVerified = false
-            recordOperation("前光确认", "已发送，但读回超时；未宣称设备已确认")
+            recordOperation(L("前光确认"), L("已发送，但读回超时；未宣称设备已确认"))
         }
     }
 
     var automationSummary: String {
-        if allControlsPaused { return "全部自动控制已暂停" }
+        if allControlsPaused { return L("全部自动控制已暂停") }
         if let failure = automationStatus.failureMessage { return failure }
-        if !automationSettings.isEnabled { return "自动化已关闭" }
-        if automationStatus.isPaused { return pauseDescription ?? "已暂停到下个时段" }
-        if !isConnected { return "等待显示器连接" }
-        guard let rule = automationStatus.activeRule else { return "当前没有匹配规则" }
+        if !automationSettings.isEnabled { return L("自动化已关闭") }
+        if automationStatus.isPaused { return pauseDescription ?? L("已暂停到下个时段") }
+        if !isConnected { return L("等待显示器连接") }
+        guard let rule = automationStatus.activeRule else { return L("当前没有匹配规则") }
         return automationStatus.isApplied
-            ? "\(lightingVerified ? "设备已确认" : "指令已发送，未确认")：\(rule.name)"
-            : "等待执行：\(rule.name)"
+            ? "\(lightingVerified ? L("设备已确认") : L("指令已发送，未确认"))：\(rule.name)"
+            : L("等待执行：\(rule.name)")
     }
 
     func retryAutomation() {
@@ -1618,7 +1635,7 @@ public final class AppModel: ObservableObject {
     func retrySavedHotKeys() {
         defer { refreshHotKeyRegistrationStatus() }
         do { try configureHotKeys(using: savedSettings) }
-        catch { errorMessage = "快捷键重试未完成：\(error.localizedDescription)" }
+        catch { errorMessage = L("快捷键重试未完成：\(error.localizedDescription)") }
     }
 
     private func configureHotKeys(using settings: AppSettings) throws {
@@ -1640,12 +1657,12 @@ public final class AppModel: ObservableObject {
 
     func saveCurrentPreset() {
         guard let state = deviceState else {
-            errorMessage = "请先连接显示器。"
+            errorMessage = L("请先连接显示器。")
             return
         }
         let lighting = state.frontLightAvailable ? LightingConfiguration(frontLightMode: state.frontLightMode,
             brightness: state.brightness, temperature: state.temperature) : nil
-        let value = DisplayPreset(id: presets.first?.id ?? UUID(), name: "我的场景", mode: state.mode, threshold: state.threshold,
+        let value = DisplayPreset(id: presets.first?.id ?? UUID(), name: L("我的场景"), mode: state.mode, threshold: state.threshold,
             speed: state.speed, lighting: lighting)
         let updated = DisplayPreset.updatingMyScene(existing: presets, with: value)
         do {
@@ -1683,10 +1700,10 @@ public final class AppModel: ObservableObject {
                     }
                     try await verifyLighting(light)
                 }
-                recordOperation("场景", "\(preset.name)：指令已发送")
+                recordOperation(L("场景"), L("\(preset.name)：指令已发送"))
             } catch {
-                errorMessage = "场景未完整应用，部分设置可能已生效。"
-                recordOperation("场景", "\(preset.name)：未完整应用", failed: true)
+                errorMessage = L("场景未完整应用，部分设置可能已生效。")
+                recordOperation(L("场景"), L("\(preset.name)：未完整应用"), failed: true)
             }
         }
     }
@@ -1704,12 +1721,12 @@ public final class AppModel: ObservableObject {
     func exportConfiguration() {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.json]
-        panel.nameFieldStringValue = "PaperLike-配置.json"
+        panel.nameFieldStringValue = L("PaperLike-配置.json")
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             try configurationBackup().encoded().write(to: url, options: .atomic)
-            recordOperation("配置备份", "已导出，不包含系统授权")
-        } catch { errorMessage = "导出失败：\(error.localizedDescription)" }
+            recordOperation(L("配置备份"), L("已导出，不包含系统授权"))
+        } catch { errorMessage = L("导出失败：\(error.localizedDescription)") }
     }
 
     @Published var recoveryWizardPresented = false
@@ -1720,13 +1737,13 @@ public final class AppModel: ObservableObject {
     func exportRawConfiguration() {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.propertyList]
-        panel.nameFieldStringValue = "PaperLike-原始配置备份.plist"
+        panel.nameFieldStringValue = L("PaperLike-原始配置备份.plist")
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             try RawConfigurationArchive.encoded().write(to: url, options: .atomic)
             recoveryArchiveExported = true
-            recordOperation("原始配置备份", "已导出，包含保留的损坏数据")
-        } catch { errorMessage = "导出失败：\(error.localizedDescription)" }
+            recordOperation(L("原始配置备份"), L("已导出，包含保留的损坏数据"))
+        } catch { errorMessage = L("导出失败：\(error.localizedDescription)") }
     }
 
     func previewConfigurationImport() {
@@ -1741,7 +1758,7 @@ public final class AppModel: ObservableObject {
             defer { try? file.close() }
             let data = try file.read(upToCount: 1_048_577) ?? Data()
             pendingImport = try ConfigurationBackup.decode(data)
-        } catch { errorMessage = "无法导入：\(error.localizedDescription)" }
+        } catch { errorMessage = L("无法导入：\(error.localizedDescription)") }
     }
 
     func confirmConfigurationImport() {
@@ -1770,7 +1787,7 @@ public final class AppModel: ObservableObject {
             pendingImport = nil
             appRuleDraft.discard()
             automationRuleDraft.discard()
-            recordOperation("配置导入", "已导入；自动控制暂停，确认设置后可恢复")
+            recordOperation(L("配置导入"), L("已导入；自动控制暂停，确认设置后可恢复"))
             recoveryImportCompleted = true
             configurationRecoveryNeeded = false
             } rollback: {
@@ -1797,8 +1814,8 @@ public final class AppModel: ObservableObject {
             if let rollbackError { throw rollbackError }
             }
         } catch {
-            errorMessage = "导入未完成：\(error.localizedDescription)"
-            recordOperation("配置导入", "未完成，已尝试恢复原配置与启用状态", failed: true)
+            errorMessage = L("导入未完成：\(error.localizedDescription)")
+            recordOperation(L("配置导入"), L("未完成，已尝试恢复原配置与启用状态"), failed: true)
         }
     }
 
@@ -1829,7 +1846,7 @@ public final class AppModel: ObservableObject {
             backing: .buffered,
             defer: false
         )
-        window.title = "设置"
+        window.title = L("设置")
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.titlebarSeparatorStyle = .none
@@ -1880,7 +1897,7 @@ public final class AppModel: ObservableObject {
             defer { isSystemSettingsUpdating = false; systemSettingsTask = nil; reloadAccessibilitySettings() }
             do { try await AppleScriptRunner().run(source) }
             catch is CancellationError { }
-            catch { errorMessage = "无法修改系统辅助功能设置，请检查系统设置中的自动化权限：\(error.localizedDescription)" }
+            catch { errorMessage = L("无法修改系统辅助功能设置，请检查系统设置中的自动化权限：\(error.localizedDescription)") }
         }
     }
 }

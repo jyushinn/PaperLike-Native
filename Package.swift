@@ -4,6 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "PaperLike Native",
+    defaultLocalization: "en",
     platforms: [.macOS("15.4")],
     products: [
         .library(name: "PaperlikeProtocol", targets: ["PaperlikeProtocol"]),
@@ -16,20 +17,21 @@ let package = Package(
         .executable(name: "PaperlikeTests", targets: ["PaperlikeTests"])
     ],
     targets: [
-        .target(name: "PaperlikeProtocol"),
-        .target(name: "SerialTransport"),
+        .target(name: "PaperlikeLocalization", resources: [.process("Resources")]),
+        .target(name: "PaperlikeProtocol", dependencies: ["PaperlikeLocalization"]),
+        .target(name: "SerialTransport", dependencies: ["PaperlikeLocalization"]),
         .target(
             name: "PaperlikeCore",
-            dependencies: ["PaperlikeProtocol", "SerialTransport"]
+            dependencies: ["PaperlikeProtocol", "SerialTransport", "PaperlikeLocalization"]
         ),
-        .target(name: "PaperlikeTouch"),
+        .target(name: "PaperlikeTouch", dependencies: ["PaperlikeLocalization"]),
         .target(
             name: "PaperLikeNativeUI",
-            dependencies: ["PaperlikeCore", "SerialTransport", "PaperlikeTouch"]
+            dependencies: ["PaperlikeCore", "SerialTransport", "PaperlikeTouch", "PaperlikeLocalization"]
         ),
         .executableTarget(
             name: "PaperLikeNative",
-            dependencies: ["PaperLikeNativeUI"]
+            dependencies: ["PaperLikeNativeUI", "PaperlikeLocalization"]
         ),
         .executableTarget(
             name: "PaperlikeProbe",
@@ -42,6 +44,7 @@ let package = Package(
         .executableTarget(
             name: "PaperlikeTests",
             dependencies: [
+                "PaperlikeLocalization",
                 "PaperlikeProtocol",
                 "SerialTransport",
                 "PaperlikeCore",
