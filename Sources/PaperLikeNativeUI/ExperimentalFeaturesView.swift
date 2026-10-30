@@ -42,7 +42,7 @@ struct ExperimentalFeaturesView: View {
     private func curveSlider(_ title: String, value: Double, range: ClosedRange<Double>, set: @escaping @MainActor @Sendable (Double) -> Void) -> some View {
         VStack(alignment: .leading) {
             LabeledContent(title, value: value.formatted(.number.precision(.fractionLength(2))))
-            Slider(value: Binding(get: { value }, set: set), in: range)
+            Slider(value: Binding(get: { value }, set: { set($0) }), in: range)
                 .accessibilityLabel(title)
         }
     }
