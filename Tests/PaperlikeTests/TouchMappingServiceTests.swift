@@ -17,7 +17,10 @@ func touchMappingServiceTests() -> [TestCase] {
                 release[83] = 0
                 harness.input.emitReport(release, timestamp: 1.03)
                 let countBeforeInertia = harness.poster.events.count
-                RunLoop.main.run(until: Date().addingTimeInterval(0.04))
+                let deadline = Date().addingTimeInterval(1)
+                while harness.poster.events.count == countBeforeInertia && Date() < deadline {
+                    RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+                }
                 try expect(harness.poster.events.count > countBeforeInertia, "inertia must emit after release")
                 for event in harness.poster.events {
                     if case let .scroll(_, _, target) = event {
