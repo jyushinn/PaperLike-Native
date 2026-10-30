@@ -24,8 +24,10 @@ export SWIFTPM_MODULECACHE_OVERRIDE="$swiftpm_cache"
 
 cd "$repo_root"
 # CLT's swiftbuild needs explicit linker metadata to opt into the current native UI.
+# Keep per-file optimization: Swift 6.2 whole-module builds report a circular reference.
 swift build --disable-sandbox --sdk "$sdk_path" \
   -c "$configuration" --arch arm64 --product PaperLikeNative \
+  -Xswiftc -no-whole-module-optimization \
   -Xlinker -platform_version -Xlinker macos -Xlinker "$minimum_os" -Xlinker "$sdk_version"
 binary_dir=$(swift build --disable-sandbox --sdk "$sdk_path" \
   -c "$configuration" --arch arm64 --show-bin-path)
