@@ -4,9 +4,11 @@ English | [简体中文](README.zh-CN.md)
 
 <img src="Resources/AppIcon/Paperlike-Native-rendered.png" width="112" height="112" alt="PaperLike Native icon">
 
-Control a PaperLike 13.3K e-ink display from your Mac menu bar. Change display modes, adjust the front light, and clear ghosting from a compact panel.
+Control a Dasung PaperLike 13.3K e-ink monitor from your Mac menu bar. Change display modes, adjust the front light, and clear ghosting from a compact panel.
 
 PaperLike Native is an independent, unofficial project for learning and research. Built with SwiftUI, it stores settings locally and requires an Apple Silicon Mac running macOS 15.4 or later.
+
+**[Download the latest release](https://github.com/jyushinn/PaperLike-Native/releases/latest)** · Apple Silicon · macOS 15.4+ · Not notarized by Apple
 
 ## Preview
 
@@ -42,7 +44,7 @@ Display curves change the mapping of light and dark tones; they are not true sat
 
 The interface supports English and Simplified Chinese and follows the system language by default. Choose a language in Settings → General → System → Language; changes apply immediately and are remembered. Custom scene, rule, and preset names stay as entered.
 
-1. Download the installer from the project's Releases page and move the app to Applications.
+1. Download the DMG or ZIP from the [Releases page](https://github.com/jyushinn/PaperLike-Native/releases/latest) and move the app to Applications.
 2. Connect the display and open the panel from the menu bar. Quit any other client using the same control serial port first.
 3. Add scheduled rules under Scenes and application rules under App Adaptation.
 4. To use touch, enable it in the Lab and grant Accessibility permission. System display optimizations also require Automation permission.

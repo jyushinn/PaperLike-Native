@@ -4,9 +4,11 @@
 
 <img src="Resources/AppIcon/Paperlike-Native-rendered.png" width="112" height="112" alt="PaperLike Native 图标">
 
-在 Mac 菜单栏调节 PaperLike 13.3K 墨水屏。切换显示模式、调整前光、清除残影，常用控制点开即用。
+在 Mac 菜单栏调节大上（Dasung）PaperLike 13.3K 墨水屏显示器。切换显示模式、调整前光、清除残影，常用控制点开即用。
 
 这是一个用于学习和研究的非官方项目，采用 SwiftUI 构建，设置保存在本机。适用于 Apple Silicon Mac，要求 macOS 15.4 或更高版本。
+
+**[下载最新版本](https://github.com/jyushinn/PaperLike-Native/releases/latest)** · Apple Silicon · macOS 15.4+ · 未通过 Apple 公证
 
 ## 界面预览
 
@@ -42,7 +44,7 @@
 
 界面支持简体中文和英文，默认跟随系统语言。在“设置 → 通用 → 系统 → 语言”中可手动切换，即时生效并记住选择。自定义场景、规则和预设名称保留原文。
 
-1. 从项目的 Releases 页面下载安装包，将应用放入“应用程序”文件夹。
+1. 从 [Releases 页面](https://github.com/jyushinn/PaperLike-Native/releases/latest)下载 DMG 或 ZIP，将应用放入“应用程序”文件夹。
 2. 连接显示器，点击菜单栏图标打开控制浮层。使用前请退出其他占用同一控制串口的客户端。
 3. 在“场景”中添加定时规则，在“应用自适应”中设置应用规则。
 4. 如需触控，在“实验室”中启用并授予辅助功能权限。系统显示优化选项另需自动化授权。
